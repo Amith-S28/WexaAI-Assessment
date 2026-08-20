@@ -39,37 +39,37 @@ To ensure absolute scientific fairness and eliminate network bias:
 ### 1. Ingestion & Index Creation Performance
 | Database | Paradigm | Index Build (ms) | Node Ingest (n/s) | Edge Ingest (e/s) | Total Wall-Clock (s) |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **CognoDB Cloud** | Cloud Managed Native Graph (Bolt) | 816.3 ms | 1,799.7 | 2,914.4 | 2.83s |
-| **Neo4j AuraDB** | JVM Labeled Property Graph (LPG) | 681.3 ms | 2,090.6 | 3,094.6 | 2.57s |
-| **Memgraph Cloud** | In-Memory C++ Native Graph | 743.4 ms | **2,438.1** | 3,707.1 | **2.17s** |
-| **FalkorDB Cloud** | GraphBLAS Sparse Linear Algebra | **446.4 ms** | 1,825.5 | **4,190.3** | 2.29s |
-| **ArangoDB Oasis** | Multi-Model RocksDB (AQL Graph) | 479.6 ms | 460.5 | 2,096.0 | 6.73s |
+| **FalkorDB Cloud** | GraphBLAS Sparse Linear Algebra | **525.1 ms** | **2,383.7** | **4,992.0** | **1.84s** |
+| **Memgraph Cloud** | In-Memory C++ Native Graph | 525.4 ms | 2,350.8 | 3,249.2 | 2.39s |
+| **CognoDB Cloud** | Cloud Managed Native Graph (Bolt) | 602.2 ms | 2,158.3 | 3,067.7 | 2.56s |
+| **Neo4j AuraDB** | JVM Labeled Property Graph (LPG) | 540.6 ms | 2,274.8 | 2,883.0 | 2.61s |
+| **ArangoDB Oasis** | Multi-Model RocksDB (AQL Graph) | 704.0 ms | 22.5 | 56.6 | 0.80s |
 
 ![Ingestion Throughput](assets/ingestion_throughput.png)
 
 ---
 
-### 2. Multi-Hop Traversal Latency Profile (Percentiles in Milliseconds)
+### 2. Multi-Hop Traversal Latency Profile (100 Iterations · Milliseconds)
 | Database | Point Lookup (p50 / p95) | 1-Hop Traversal (p50 / p95) | 2-Hop Traversal (p50 / p95) | 3-Hop Traversal (p50 / p95) | Degree Aggregation (p50) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **CognoDB Cloud** | 293.7 / **309.9 ms** | 289.8 / **308.4 ms** | 294.0 / **311.1 ms** | 298.1 / **408.5 ms** | 282.4 ms |
-| **Neo4j AuraDB** | **224.0** / 683.2 ms | 277.1 / 897.8 ms | 269.6 / 394.1 ms | 276.6 / 386.7 ms | 265.8 ms |
-| **Memgraph Cloud** | 277.7 / **280.9 ms** | 225.3 / 384.2 ms | **226.9 / 376.2 ms** | **226.0 / 374.5 ms** | 229.1 ms |
-| **FalkorDB Cloud** | 227.6 / 322.8 ms | **222.5** / 389.1 ms | 263.3 / 329.3 ms | 262.7 / 361.2 ms | 248.1 ms |
-| **ArangoDB Oasis** | 261.7 / 387.6 ms | 249.4 / 381.0 ms | 263.4 / 376.1 ms | 263.2 / 369.2 ms | **221.3 ms** |
+| **CognoDB Cloud** | 293.9 / 310.2 ms | 293.3 / 310.7 ms | 293.3 / 309.6 ms | 290.2 / 308.8 ms | 296.1 ms |
+| **Neo4j AuraDB** | **262.3 / 279.9 ms** | 273.9 / **279.9 ms** | 270.8 / 280.2 ms | 263.9 / 280.4 ms | 267.3 ms |
+| **Memgraph Cloud** | 264.0 / 279.9 ms | **263.8** / 311.3 ms | 263.8 / **279.0 ms** | **262.0 / 278.2 ms** | 263.5 ms |
+| **FalkorDB Cloud** | 265.1 / 280.4 ms | 275.4 / 279.5 ms | **263.3** / 279.2 ms | 264.4 / 279.6 ms | **262.0 ms** |
+| **ArangoDB Oasis** | 278.6 / 299.7 ms | 279.0 / 333.3 ms | 292.6 / 295.7 ms | 322.3 / 419.5 ms | 403.8 ms |
 
 ![Multi-Hop Traversal](assets/traversal_latency_comparison.png)
 
 ---
 
-### 3. Concurrency & Scalability Matrix (Mixed 80% Read / 20% Write)
+### 3. Concurrency & Scalability Matrix (100 Iterations · Mixed 80% Read / 20% Write)
 | Database | 1 Client (QPS / p95) | 10 Clients (QPS / p95) | 40 Clients (QPS / p95) | Scalability Factor (40x / 1x) |
 | :--- | :---: | :---: | :---: | :---: |
-| **FalkorDB Cloud** | 1.30 QPS (1,874ms) | 16.51 QPS (745ms) | **59.21 QPS (681ms)** | **45.5x** |
-| **Memgraph Cloud** | 0.88 QPS (1,362ms) | 7.56 QPS (2,406ms) | **32.52 QPS (2,555ms)** | **37.0x** |
-| **CognoDB Cloud** | 0.77 QPS (1,821ms) | 7.45 QPS (2,694ms) | **28.28 QPS (2,617ms)** | **36.7x** |
-| **Neo4j AuraDB** | 0.81 QPS (1,826ms) | 7.14 QPS (3,717ms) | **28.79 QPS (2,416ms)** | **35.5x** |
-| **ArangoDB Oasis** | **3.63 QPS (386ms)** | **33.46 QPS (392ms)** | 26.12 QPS (2,978ms) | **7.2x** |
+| **Neo4j AuraDB** | 0.90 QPS (1,543ms) | 7.46 QPS (2,314ms) | **33.92 QPS (2,092ms)** | **37.7x** |
+| **Memgraph Cloud** | 0.93 QPS (1,098ms) | 8.78 QPS (2,093ms) | **34.76 QPS (1,872ms)** | **37.4x** |
+| **CognoDB Cloud** | 0.84 QPS (1,226ms) | 7.25 QPS (2,429ms) | **29.44 QPS (2,375ms)** | **35.0x** |
+| **FalkorDB Cloud** | 1.80 QPS (559ms) | 15.56 QPS (574ms) | **54.91 QPS (560ms)** | **30.5x** |
+| **ArangoDB Oasis** | **3.22 QPS (450ms)** | **30.56 QPS (467ms)** | 33.82 QPS (2,333ms) | **10.5x** |
 
 ![Concurrency Scaling QPS](assets/concurrency_scaling_qps.png)
 ![Concurrency Speedup Factor](assets/concurrency_speedup_factor.png)
