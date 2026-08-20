@@ -1,3 +1,4 @@
+import argparse
 import sys
 import json
 from pathlib import Path
@@ -15,8 +16,8 @@ plt.rcParams["font.sans-serif"] = ["DejaVu Sans", "Segoe UI", "Helvetica", "Aria
 plt.rcParams["axes.edgecolor"] = "#CBD5E1"
 plt.rcParams["axes.linewidth"] = 0.8
 
-RESULTS_FILE = Path("d:/Projects/WEXA/results/benchmark_results.json")
-ASSETS_DIR = Path("d:/Projects/WEXA/assets")
+DEFAULT_RESULTS_FILE = Path("d:/Projects/WEXA/results/benchmark_results.json")
+DEFAULT_ASSETS_DIR = Path("d:/Projects/WEXA/assets")
 
 DB_COLORS = {
     "CognoDB Cloud": "#EB6C36",    # Coral/Tangerine
@@ -26,10 +27,11 @@ DB_COLORS = {
     "ArangoDB Oasis": "#F59E0B"    # Amber
 }
 
-def load_data():
-    if not RESULTS_FILE.exists():
-        raise FileNotFoundError(f"Missing {RESULTS_FILE}")
-    with open(RESULTS_FILE, "r", encoding="utf-8") as f:
+def load_data(file_path: Path = DEFAULT_RESULTS_FILE):
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Missing {file_path}")
+    with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 def _normalize(values, higher_is_better=True):
@@ -43,7 +45,10 @@ def _normalize(values, higher_is_better=True):
         return [round(100 * (vmax - v) / (vmax - vmin), 1) for v in values]
 
 
-def generate_radar_chart(data):
+def generate_radar_chart(data, output_dir: Path = DEFAULT_ASSETS_DIR):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     categories = [
         "Ingestion\nThroughput",
         "Traversal\nSpeed (Low p50)",
@@ -121,12 +126,15 @@ def generate_radar_chart(data):
               size=14, weight="bold", color="#0F172A", pad=28)
     plt.legend(loc="upper right", bbox_to_anchor=(1.3, 1.1), frameon=True, facecolor="#FFFFFF", edgecolor="#E2E8F0")
     plt.tight_layout()
-    plt.savefig(ASSETS_DIR / "radar_performance_profile.png", dpi=300, bbox_inches="tight")
+    plt.savefig(output_dir / "radar_performance_profile.png", dpi=300, bbox_inches="tight")
     plt.close()
-    print("✓ Saved assets/radar_performance_profile.png")
+    print(f"✓ Saved {output_dir}/radar_performance_profile.png")
 
 
-def generate_jitter_dumbbell_chart(data):
+def generate_jitter_dumbbell_chart(data, output_dir: Path = DEFAULT_ASSETS_DIR):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     fig, ax = plt.subplots(figsize=(10, 5.5), facecolor="#F8FAFC")
     ax.set_facecolor("#FFFFFF")
     
@@ -143,6 +151,9 @@ def generate_jitter_dumbbell_chart(data):
             p50s.append(p50)
             p95s.append(p95)
             
+    if not dbs:
+        return
+        
     # Sort by p95-p50 jitter ascending (tightest variance first)
     jitters = [p95 - p50 for p50, p95 in zip(p50s, p95s)]
     sorted_indices = np.argsort(jitters)
@@ -182,12 +193,15 @@ def generate_jitter_dumbbell_chart(data):
     ax.legend(loc="lower right", frameon=True, facecolor="#FFFFFF", edgecolor="#E2E8F0")
     
     plt.tight_layout()
-    plt.savefig(ASSETS_DIR / "jitter_tail_latency_comparison.png", dpi=300, bbox_inches="tight")
+    plt.savefig(output_dir / "jitter_tail_latency_comparison.png", dpi=300, bbox_inches="tight")
     plt.close()
-    print("✓ Saved assets/jitter_tail_latency_comparison.png")
+    print(f"✓ Saved {output_dir}/jitter_tail_latency_comparison.png")
 
 
-def generate_speedup_chart(data):
+def generate_speedup_chart(data, output_dir: Path = DEFAULT_ASSETS_DIR):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     fig, ax = plt.subplots(figsize=(10, 5.5), facecolor="#F8FAFC")
     ax.set_facecolor("#FFFFFF")
     
@@ -204,6 +218,9 @@ def generate_speedup_chart(data):
         dbs.append(db_name)
         speedups.append(factor)
         qps_40.append(c40)
+        
+    if not dbs:
+        return
         
     # Sort descending by speedup
     sorted_indices = np.argsort(speedups)[::-1]
@@ -230,12 +247,15 @@ def generate_speedup_chart(data):
     ax.grid(axis="x", linestyle="--", alpha=0.5)
     
     plt.tight_layout()
-    plt.savefig(ASSETS_DIR / "concurrency_speedup_factor.png", dpi=300, bbox_inches="tight")
+    plt.savefig(output_dir / "concurrency_speedup_factor.png", dpi=300, bbox_inches="tight")
     plt.close()
-    print("✓ Saved assets/concurrency_speedup_factor.png")
+    print(f"✓ Saved {output_dir}/concurrency_speedup_factor.png")
 
 
-def generate_quadrant_matrix():
+def generate_quadrant_matrix(output_dir: Path = DEFAULT_ASSETS_DIR):
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     fig, ax = plt.subplots(figsize=(10, 8), facecolor="#F8FAFC")
     ax.set_facecolor("#FFFFFF")
     
@@ -269,7 +289,7 @@ def generate_quadrant_matrix():
     }
     
     for db, (x, y, desc) in db_positions.items():
-        color = DB_COLORS[db]
+        color = DB_COLORS.get(db, "#475569")
         ax.scatter(x, y, color=color, edgecolors="#0F172A", s=220, linewidth=1.8, zorder=4)
         
         # Label offset
@@ -301,15 +321,31 @@ def generate_quadrant_matrix():
     ax.set_yticklabels(["0%", "25%", "50%", "75%", "100%"], color="#64748B")
     
     plt.tight_layout()
-    plt.savefig(ASSETS_DIR / "architectural_tradeoff_quadrant.png", dpi=300, bbox_inches="tight")
+    plt.savefig(output_dir / "architectural_tradeoff_quadrant.png", dpi=300, bbox_inches="tight")
     plt.close()
-    print("✓ Saved assets/architectural_tradeoff_quadrant.png")
+    print(f"✓ Saved {output_dir}/architectural_tradeoff_quadrant.png")
+
+
+def generate_all_metric_diagrams(data_or_path, output_dir: Path = DEFAULT_ASSETS_DIR):
+    """Generate all 4 advanced diagrams from a dict or JSON file path."""
+    if isinstance(data_or_path, (str, Path)):
+        data = load_data(data_or_path)
+    else:
+        data = data_or_path
+        
+    out = Path(output_dir)
+    generate_radar_chart(data, output_dir=out)
+    generate_jitter_dumbbell_chart(data, output_dir=out)
+    generate_speedup_chart(data, output_dir=out)
+    generate_quadrant_matrix(output_dir=out)
 
 
 if __name__ == "__main__":
-    data = load_data()
-    generate_radar_chart(data)
-    generate_jitter_dumbbell_chart(data)
-    generate_speedup_chart(data)
-    generate_quadrant_matrix()
-    print("✓ All 4 Advanced Metric Comparison Diagrams Generated Successfully from 100-Iteration Telemetry!")
+    parser = argparse.ArgumentParser(description="Generate advanced metric comparison diagrams")
+    parser.add_argument("--results-file", type=str, default=str(DEFAULT_RESULTS_FILE), help="Path to benchmark_results.json")
+    parser.add_argument("--output-dir", type=str, default=str(DEFAULT_ASSETS_DIR), help="Directory to save PNG diagrams")
+    args = parser.parse_args()
+    
+    data = load_data(Path(args.results_file))
+    generate_all_metric_diagrams(data, output_dir=Path(args.output_dir))
+    print(f"✓ All 4 Advanced Metric Comparison Diagrams Generated Successfully into {args.output_dir}!")

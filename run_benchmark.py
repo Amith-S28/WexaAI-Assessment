@@ -34,6 +34,10 @@ def main():
     parser.add_argument("--nodes", type=int, default=None, help="Limit number of nodes to ingest (default: all ~148k)")
     parser.add_argument("--edges", type=int, default=None, help="Limit number of edges to ingest (default: all 350k)")
     parser.add_argument("--iterations", type=int, default=100, help="Number of query repetitions for percentile stats (default: 100)")
+    parser.add_argument("--output-dir", type=str, default="results", help="Directory to save raw telemetry JSON and summary tables (default: results)")
+    parser.add_argument("--assets-dir", type=str, default="assets", help="Directory to save generated charts (default: assets)")
+    parser.add_argument("--clean", action="store_true", help="Start fresh without loading residual results from target directory")
+    parser.add_argument("--env-file", type=str, default=None, help="Path to custom .env file (e.g. .env.local)")
     
     args = parser.parse_args()
     
@@ -46,7 +50,11 @@ def main():
         selected_dbs=selected,
         iterations=args.iterations,
         node_limit=args.nodes,
-        edge_limit=args.edges
+        edge_limit=args.edges,
+        results_dir=Path(args.output_dir),
+        assets_dir=Path(args.assets_dir),
+        clean=args.clean,
+        env_file=args.env_file
     )
     orchestrator.run()
 

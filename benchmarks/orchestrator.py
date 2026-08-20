@@ -35,13 +35,32 @@ ASSETS_DIR = Path("d:/Projects/WEXA/assets")
 class BenchmarkOrchestrator:
     """Orchestrates benchmark runs across multiple graph databases."""
     
-    def __init__(self, selected_dbs: List[str] = None, iterations: int = 100, node_limit: Optional[int] = None, edge_limit: Optional[int] = None):
+    def __init__(
+        self, 
+        selected_dbs: List[str] = None, 
+        iterations: int = 100, 
+        node_limit: Optional[int] = None, 
+        edge_limit: Optional[int] = None,
+        results_dir: Optional[Path] = None,
+        assets_dir: Optional[Path] = None,
+        clean: bool = False,
+        env_file: Optional[str] = None
+    ):
+        if env_file:
+            load_dotenv(env_file, override=True)
+        else:
+            load_dotenv(override=True)
+            
         self.selected_dbs = [db.lower() for db in (selected_dbs or ["cognodb", "neo4j", "memgraph", "falkordb", "arangodb"])]
         self.iterations = iterations
         self.node_limit = node_limit
         self.edge_limit = edge_limit
-        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-        ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        self.results_dir = Path(results_dir) if results_dir else RESULTS_DIR
+        self.assets_dir = Path(assets_dir) if assets_dir else ASSETS_DIR
+        self.clean = clean
+        
+        self.results_dir.mkdir(parents=True, exist_ok=True)
+        self.assets_dir.mkdir(parents=True, exist_ok=True)
 
     def _get_adapters(self) -> List[Any]:
         adapters = []
@@ -82,6 +101,7 @@ class BenchmarkOrchestrator:
         console.print("[bold cyan]========================================================================[/bold cyan]")
         console.print("[bold cyan]       WEXA AI GRAPH DATABASE CLOUD BENCHMARK ORCHESTRATOR              [/bold cyan]")
         console.print("[bold cyan]========================================================================[/bold cyan]")
+        console.print(f"[dim]Results Target: {self.results_dir} | Assets Target: {self.assets_dir} | Clean Slate: {self.clean}[/dim]\n")
         
         adapters = self._get_adapters()
         if not adapters:
@@ -112,10 +132,10 @@ class BenchmarkOrchestrator:
             finally:
                 adapter.close()
                 
-        # Load existing results if present to merge
-        raw_json_path = RESULTS_DIR / "benchmark_results.json"
+        # Load existing results if present to merge, unless clean slate requested
+        raw_json_path = self.results_dir / "benchmark_results.json"
         existing_results = {}
-        if raw_json_path.exists():
+        if not self.clean and raw_json_path.exists():
             try:
                 with open(raw_json_path, "r", encoding="utf-8") as f:
                     existing_results = json.load(f)
@@ -132,12 +152,20 @@ class BenchmarkOrchestrator:
         # Generate Visual Charts and Tables with full merged suite
         if existing_results:
             console.print("[bold cyan]▶ Generating publication-grade visualization charts...[/bold cyan]")
-            report_gen = ReportGenerator(existing_results, output_dir=ASSETS_DIR)
+            report_gen = ReportGenerator(existing_results, output_dir=self.assets_dir)
             report_gen.generate_all_charts()
-            console.print(f"[bold green]✓ Charts generated in {ASSETS_DIR}/[/bold green]")
+            console.print(f"[bold green]✓ Base charts generated in {self.assets_dir}/[/bold green]")
             
+            # Also generate advanced metric diagrams (radar, dumbbell, speedup, quadrant)
+            try:
+                from scripts.generate_metric_diagrams import generate_all_metric_diagrams
+                generate_all_metric_diagrams(existing_results, output_dir=self.assets_dir)
+                console.print(f"[bold green]✓ Advanced diagrams generated in {self.assets_dir}/[/bold green]")
+            except Exception as e:
+                console.print(f"[dim]Advanced diagram generator notice: {e}[/dim]")
+                
             markdown_tables = report_gen.generate_markdown_tables()
-            md_path = RESULTS_DIR / "summary_tables.md"
+            md_path = self.results_dir / "summary_tables.md"
             with open(md_path, "w", encoding="utf-8") as f:
                 f.write(markdown_tables)
             console.print(f"[bold green]✓ Saved Markdown summary tables to {md_path}[/bold green]")

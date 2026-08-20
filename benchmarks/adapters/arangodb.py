@@ -1,13 +1,16 @@
 import time
+import logging
 import warnings
 import urllib3
 from typing import Dict, List, Tuple, Any, Optional
 from arango import ArangoClient
 from .base import BaseGraphAdapter
 
-# Suppress unverified HTTPS warnings for cloud endpoints
+# Suppress unverified HTTPS warnings and connection pool overflow noise for cloud endpoints
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.ERROR)
+
 
 class ArangoDBAdapter(BaseGraphAdapter):
     """Adapter for ArangoDB Oasis Cloud multi-model graph engine."""

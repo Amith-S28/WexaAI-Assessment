@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # 1. CognoDB Local (Wexa AI Open-Source Graph Engine)
+  # Capped at 0.50 vCPU / 256MB RAM
+  cognodb-local:
+    image: ghcr.io/cognodb/cognodb:latest
+    container_name: wexa-cognodb-local
+    restart: unless-stopped
+    ports:
+      - "7689:7687"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
+
+  # 2. Neo4j 5 Community
+  # Capped at 0.50 vCPU / 256MB RAM
+  neo4j-local:
+    image: neo4j:5-community
+    container_name: wexa-neo4j-local
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=neo4j/benchmarkpassword
+      - NEO4J_dbms_memory_heap_max__size=180m
+      - NEO4J_dbms_memory_pagecache_size=50m
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
+
+  # 3. Memgraph Platform / Native
+  # Capped at 0.50 vCPU / 256MB RAM
+  memgraph-local:
+    image: memgraph/memgraph:latest
+    container_name: wexa-memgraph-local
+    restart: unless-stopped
+    command: ["--memory-limit=256"]
+    ports:
+      - "7688:7687"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
+
+  # 4. FalkorDB (GraphBLAS Linear Algebra Engine)
+  # Capped at 0.50 vCPU / 256MB RAM
+  falkordb-local:
+    image: falkordb/falkordb:latest
+    container_name: wexa-falkordb-local
+    restart: unless-stopped
+    command: ["falkordb-server", "--maxmemory", "256mb"]
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
+
+  # 5. ArangoDB (Multi-Model RocksDB Engine)
+  # Capped at 0.50 vCPU / 256MB RAM
+  arangodb-local:
+    image: arangodb:latest
+    container_name: wexa-arangodb-local
+    restart: unless-stopped
+    environment:
+      - ARANGO_ROOT_PASSWORD=benchmarkpassword
+    ports:
+      - "8529:8529"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.50'
+          memory: 256M
