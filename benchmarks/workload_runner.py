@@ -6,9 +6,11 @@ Executes standard benchmark workloads across database adapters and collects raw 
 import time
 import random
 import csv
-from typing import Dict, List, Any, Optional
+import statistics
+from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TimeElapsedColumn
 
@@ -134,11 +136,18 @@ class WorkloadRunner:
             cold_latency = None
             
             t_start = time.perf_counter()
-            for i in range(self.iterations):
-                lat_ms, _ = func()
-                if i == 0:
-                    cold_latency = lat_ms
-                latencies.append(lat_ms)
+            
+            # Real-time progress bar for iterations
+            with tqdm(total=self.iterations, desc=f"  {label:30}", unit="query", ncols=90, leave=True) as pbar:
+                for i in range(self.iterations):
+                    lat_ms, _ = func()
+                    if i == 0:
+                        cold_latency = lat_ms
+                    latencies.append(lat_ms)
+                    current_p50 = statistics.median(latencies) if len(latencies) > 0 else lat_ms
+                    pbar.set_postfix({"last": f"{lat_ms:.1f}ms", "p50": f"{current_p50:.1f}ms"})
+                    pbar.update(1)
+                    
             t_total = time.perf_counter() - t_start
             
             stats = LatencyStats(latencies, total_duration_sec=t_total, cold_latency_ms=cold_latency)
@@ -178,10 +187,30 @@ class WorkloadRunner:
                 return local_lats
 
             t0 = time.perf_counter()
-            with ThreadPoolExecutor(max_workers=concurrency) as pool:
-                futures = [pool.submit(worker_loop, w) for w in range(concurrency)]
-                for f in as_completed(futures):
-                    tx_latencies.extend(f.result())
+            
+            # Visual progress bar for countdown duration
+            with tqdm(total=duration_per_level_sec, desc=f"  Concurrency [{concurrency:2} Workers]    ", unit="s", ncols=90, leave=True) as pbar:
+                with ThreadPoolExecutor(max_workers=concurrency) as pool:
+                    futures = [pool.submit(worker_loop, w) for w in range(concurrency)]
+                    start_sweep = time.time()
+                    last_elapsed = 0
+                    while any(not f.done() for f in futures):
+                        time.sleep(0.5)
+                        elapsed = min(int(time.time() - start_sweep), duration_per_level_sec)
+                        inc = elapsed - last_elapsed
+                        if inc > 0:
+                            pbar.update(inc)
+                            last_elapsed = elapsed
+                        curr_tx = success_count + fail_count
+                        curr_qps = curr_tx / max(1, (time.time() - start_sweep))
+                        pbar.set_postfix({"TXs": curr_tx, "QPS": f"{curr_qps:.1f}"})
+                        
+                    for f in as_completed(futures):
+                        tx_latencies.extend(f.result())
+                # Ensure 100% full bar
+                if pbar.n < duration_per_level_sec:
+                    pbar.update(duration_per_level_sec - pbar.n)
+                    
             total_duration = time.perf_counter() - t0
             
             stats = LatencyStats(tx_latencies, total_duration_sec=total_duration)

@@ -95,8 +95,13 @@ class BenchmarkOrchestrator:
         console.print(f"[bold green]✓ Loaded {len(nodes):,} Nodes and {len(edges):,} Edges into memory[/bold green]\n")
         
         all_results = {}
+        total_dbs = len(adapters)
         
-        for adapter in adapters:
+        for idx, adapter in enumerate(adapters, start=1):
+            pct = int(((idx - 1) / total_dbs) * 100)
+            console.print(f"\n[bold yellow]╔{'═'*78}╗[/bold yellow]")
+            console.print(f"[bold yellow]║  DATABASE {idx}/{total_dbs} ({pct}% Total Progress): {adapter.name.upper():<44} ║[/bold yellow]")
+            console.print(f"[bold yellow]╚{'═'*78}╝[/bold yellow]")
             try:
                 adapter.connect()
                 runner = WorkloadRunner(adapter, iterations=self.iterations)
