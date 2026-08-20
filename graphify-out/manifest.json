@@ -1,0 +1,167 @@
+{
+  "CloudRun/benchmark_results.json": {
+    "mtime": 1787256255.8989725,
+    "ast_hash": "2d0aa210f0f5baa5067c2342ed3fd4d5",
+    "semantic_hash": "2d0aa210f0f5baa5067c2342ed3fd4d5"
+  },
+  "CloudRun/results/benchmark_results.json": {
+    "mtime": 1787256255.8989725,
+    "ast_hash": "2d0aa210f0f5baa5067c2342ed3fd4d5",
+    "semantic_hash": "2d0aa210f0f5baa5067c2342ed3fd4d5"
+  },
+  "benchmarks/__init__.py": {
+    "mtime": 1787242449.4599793,
+    "ast_hash": "c2d6ecc7b2fe642c86a87de850fa4637",
+    "semantic_hash": "c2d6ecc7b2fe642c86a87de850fa4637"
+  },
+  "benchmarks/adapters/__init__.py": {
+    "mtime": 1787242437.3129299,
+    "ast_hash": "830fbab6d1c7cf08621bcdb05715d863",
+    "semantic_hash": "830fbab6d1c7cf08621bcdb05715d863"
+  },
+  "benchmarks/adapters/arangodb.py": {
+    "mtime": 1787251954.8789942,
+    "ast_hash": "cc298802025ab9a4d9b87ce61b56349a",
+    "semantic_hash": "cc298802025ab9a4d9b87ce61b56349a"
+  },
+  "benchmarks/adapters/base.py": {
+    "mtime": 1787242338.318891,
+    "ast_hash": "77ad8f5f684088bedae3de7f013ae426",
+    "semantic_hash": "77ad8f5f684088bedae3de7f013ae426"
+  },
+  "benchmarks/adapters/bolt_base.py": {
+    "mtime": 1787246860.532434,
+    "ast_hash": "73eb73683ed63b667879e9abd31d30dd",
+    "semantic_hash": "73eb73683ed63b667879e9abd31d30dd"
+  },
+  "benchmarks/adapters/cognodb.py": {
+    "mtime": 1787242368.853691,
+    "ast_hash": "3080c9d4e622f61f3d69d2582ddfed2e",
+    "semantic_hash": "3080c9d4e622f61f3d69d2582ddfed2e"
+  },
+  "benchmarks/adapters/falkordb.py": {
+    "mtime": 1787242412.062455,
+    "ast_hash": "00e759a063986b35e90af75b8e2fbb9c",
+    "semantic_hash": "00e759a063986b35e90af75b8e2fbb9c"
+  },
+  "benchmarks/adapters/memgraph.py": {
+    "mtime": 1787242395.486496,
+    "ast_hash": "455d8505203abe2ce699432e82bf68dd",
+    "semantic_hash": "455d8505203abe2ce699432e82bf68dd"
+  },
+  "benchmarks/adapters/neo4j.py": {
+    "mtime": 1787242381.895379,
+    "ast_hash": "4bd69ff26272b5548f1d805c383e4a6b",
+    "semantic_hash": "4bd69ff26272b5548f1d805c383e4a6b"
+  },
+  "benchmarks/orchestrator.py": {
+    "mtime": 1787251983.0814023,
+    "ast_hash": "25e795702f92132819c5c54deb85830d",
+    "semantic_hash": "25e795702f92132819c5c54deb85830d"
+  },
+  "benchmarks/report_generator.py": {
+    "mtime": 1787248603.7870047,
+    "ast_hash": "829ceaee91180663b11a5d4fc723a0ac",
+    "semantic_hash": "829ceaee91180663b11a5d4fc723a0ac"
+  },
+  "benchmarks/stats.py": {
+    "mtime": 1787249172.381805,
+    "ast_hash": "cc13086d2eb834d6f16c154d1a6bf592",
+    "semantic_hash": "cc13086d2eb834d6f16c154d1a6bf592"
+  },
+  "benchmarks/workload_runner.py": {
+    "mtime": 1787248470.4220538,
+    "ast_hash": "d73b42eead48d65fce4b3cc575844836",
+    "semantic_hash": "d73b42eead48d65fce4b3cc575844836"
+  },
+  "data/metadata.json": {
+    "mtime": 1787241935.7252462,
+    "ast_hash": "ebec5fbfa2b1031bb06b1ddab04eefbd",
+    "semantic_hash": "ebec5fbfa2b1031bb06b1ddab04eefbd"
+  },
+  "results/benchmark_results.json": {
+    "mtime": 1787256255.8989725,
+    "ast_hash": "2d0aa210f0f5baa5067c2342ed3fd4d5",
+    "semantic_hash": "2d0aa210f0f5baa5067c2342ed3fd4d5"
+  },
+  "run_benchmark.py": {
+    "mtime": 1787252005.3704345,
+    "ast_hash": "58ddd09266902612c4ebda4413c263e7",
+    "semantic_hash": "58ddd09266902612c4ebda4413c263e7"
+  },
+  "scripts/download_dataset.py": {
+    "mtime": 1787241713.0831013,
+    "ast_hash": "b5311c393afd945c1c2d273cbec9905b",
+    "semantic_hash": "b5311c393afd945c1c2d273cbec9905b"
+  },
+  "scripts/download_dataset_fast.py": {
+    "mtime": 1787241859.7567146,
+    "ast_hash": "e59b9b3a8aff3da0a9cfcd1a51a5fd1b",
+    "semantic_hash": "e59b9b3a8aff3da0a9cfcd1a51a5fd1b"
+  },
+  "scripts/generate_metric_diagrams.py": {
+    "mtime": 1787252166.3767438,
+    "ast_hash": "ab7921f8551b9288f1b0bb474ee02ef9",
+    "semantic_hash": "ab7921f8551b9288f1b0bb474ee02ef9"
+  },
+  "scripts/generate_submission_email.py": {
+    "mtime": 1787244427.85875,
+    "ast_hash": "dce424b41601381c5c60e5f30f5268cb",
+    "semantic_hash": "dce424b41601381c5c60e5f30f5268cb"
+  },
+  "scripts/test_adapters.py": {
+    "mtime": 1787242488.9251235,
+    "ast_hash": "270f61986c83492e315f02d3b9ea5761",
+    "semantic_hash": "270f61986c83492e315f02d3b9ea5761"
+  },
+  "scripts/test_connections.py": {
+    "mtime": 1787236279.5481207,
+    "ast_hash": "1240f2d787055807102ff8a4d0f63503",
+    "semantic_hash": "1240f2d787055807102ff8a4d0f63503"
+  },
+  "scripts/test_individual_adapter.py": {
+    "mtime": 1787242681.6095746,
+    "ast_hash": "b14805f77b3b6742ef7c52b1be0503be",
+    "semantic_hash": "b14805f77b3b6742ef7c52b1be0503be"
+  },
+  "scripts/test_memgraph.py": {
+    "mtime": 1787235901.013635,
+    "ast_hash": "ef07153f839087a2e433544663b12068",
+    "semantic_hash": "ef07153f839087a2e433544663b12068"
+  },
+  "scripts/test_memgraph_live.py": {
+    "mtime": 1787236107.7424753,
+    "ast_hash": "8ab626bea9e5825a638be8f4eb625fbd",
+    "semantic_hash": "8ab626bea9e5825a638be8f4eb625fbd"
+  },
+  "scripts/verify_cloud_run.py": {
+    "mtime": 1787256649.2657912,
+    "ast_hash": "2c56c8477337f54d66b0d7286c7faf55",
+    "semantic_hash": "2c56c8477337f54d66b0d7286c7faf55"
+  },
+  "scripts/verify_regions.py": {
+    "mtime": 1787236458.6685774,
+    "ast_hash": "14229bde1c143c55f91b50c2e2a0e779",
+    "semantic_hash": "14229bde1c143c55f91b50c2e2a0e779"
+  },
+  "BENCHMARK_ANALYSIS.md": {
+    "mtime": 1787244026.6615722,
+    "ast_hash": "a486117340c6457ea1db49099844a0be",
+    "semantic_hash": "a486117340c6457ea1db49099844a0be"
+  },
+  "CloudRun/results/summary_tables.md": {
+    "mtime": 1787256263.8025799,
+    "ast_hash": "d2a1c6c4f4d071a27f5a61b9d5e79d4e",
+    "semantic_hash": "d2a1c6c4f4d071a27f5a61b9d5e79d4e"
+  },
+  "README.md": {
+    "mtime": 1787250487.7287273,
+    "ast_hash": "3cc084145df15a04609a46c156e5513a",
+    "semantic_hash": "3cc084145df15a04609a46c156e5513a"
+  },
+  "docker-compose.benchmark.yml": {
+    "mtime": 1787256865.136374,
+    "ast_hash": "b39559b63c0ccee88890d0c7c080e89a",
+    "semantic_hash": "b39559b63c0ccee88890d0c7c080e89a"
+  }
+}

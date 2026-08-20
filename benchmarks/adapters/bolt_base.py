@@ -23,7 +23,7 @@ class BoltGraphAdapter(BaseGraphAdapter):
     def connect(self) -> bool:
         auth = (self.user, self.password) if self.user else None
         last_err = None
-        for attempt in range(1, 4):
+        for attempt in range(1, 6):
             try:
                 self.driver = GraphDatabase.driver(
                     self.uri,
@@ -40,9 +40,9 @@ class BoltGraphAdapter(BaseGraphAdapter):
                 return True
             except Exception as e:
                 last_err = e
-                time.sleep(1.0 * attempt)
+                time.sleep(2.0 * attempt)
         self.is_connected = False
-        raise ConnectionError(f"[{self.name}] Failed to connect to {self.uri} after 3 attempts: {last_err}")
+        raise ConnectionError(f"[{self.name}] Failed to connect to {self.uri} after 5 attempts: {last_err}")
 
     def close(self) -> None:
         if self.driver:
@@ -57,16 +57,19 @@ class BoltGraphAdapter(BaseGraphAdapter):
         return (t1 - t0) / 1_000_000
 
     def reset_database(self) -> bool:
-        """Drop existing nodes and relationships in batches to prevent memory OOM."""
-        with self.driver.session() as session:
-            while True:
-                res = session.run("MATCH (n) WITH n LIMIT 5000 DETACH DELETE n RETURN count(n) AS deleted").single()
-                if not res or res["deleted"] == 0:
-                    break
+        try:
+            with self.driver.session() as session:
+                while True:
+                    res = session.run("MATCH (n) WITH n LIMIT 5000 DETACH DELETE n RETURN count(n) AS cnt").single()
+                    if not res or res["cnt"] == 0:
+                        break
+        except Exception:
+            pass
         return True
 
     def create_schema_and_indexes(self) -> float:
         t0 = time.perf_counter_ns()
+        self.reset_database()
         with self.driver.session() as session:
             try:
                 session.run("CREATE INDEX user_id_idx IF NOT EXISTS FOR (u:User) ON (u.id)").consume()
@@ -85,7 +88,7 @@ class BoltGraphAdapter(BaseGraphAdapter):
         t1 = time.perf_counter_ns()
         return (t1 - t0) / 1_000_000
 
-    def bulk_insert_nodes(self, nodes: List[Dict[str, Any]], batch_size: int = 1000) -> Dict[str, Any]:
+    def bulk_insert_nodes(self, nodes: List[Dict[str, Any]], batch_size: int = 500) -> Dict[str, Any]:
         t0 = time.perf_counter()
         total = len(nodes)
         
@@ -94,10 +97,10 @@ class BoltGraphAdapter(BaseGraphAdapter):
         CREATE (u:User {id: row.id, name: row.name, category: row.category})
         """
         
-        with self.driver.session() as session:
-            for i in range(0, total, batch_size):
-                batch = nodes[i : i + batch_size]
-                session.run(query, batch=batch)
+        for i in range(0, total, batch_size):
+            batch = nodes[i : i + batch_size]
+            with self.driver.session() as session:
+                session.run(query, batch=batch).consume()
                 
         elapsed = time.perf_counter() - t0
         throughput = total / elapsed if elapsed > 0 else 0
@@ -107,7 +110,7 @@ class BoltGraphAdapter(BaseGraphAdapter):
             "throughput_nodes_sec": round(throughput, 1)
         }
 
-    def bulk_insert_edges(self, edges: List[Dict[str, Any]], batch_size: int = 1000) -> Dict[str, Any]:
+    def bulk_insert_edges(self, edges: List[Dict[str, Any]], batch_size: int = 500) -> Dict[str, Any]:
         t0 = time.perf_counter()
         total = len(edges)
         
@@ -118,10 +121,10 @@ class BoltGraphAdapter(BaseGraphAdapter):
         CREATE (src)-[:FOLLOWS {weight: row.weight}]->(dst)
         """
         
-        with self.driver.session() as session:
-            for i in range(0, total, batch_size):
-                batch = edges[i : i + batch_size]
-                session.run(query, batch=batch)
+        for i in range(0, total, batch_size):
+            batch = edges[i : i + batch_size]
+            with self.driver.session() as session:
+                session.run(query, batch=batch).consume()
                 
         elapsed = time.perf_counter() - t0
         throughput = total / elapsed if elapsed > 0 else 0

@@ -1,33 +1,34 @@
-version: '3.8'
-
 services:
-  # 1. CognoDB Local (Wexa AI Open-Source Graph Engine)
-  # Capped at 0.50 vCPU / 256MB RAM
-  cognodb-local:
-    image: ghcr.io/cognodb/cognodb:latest
-    container_name: wexa-cognodb-local
-    restart: unless-stopped
-    ports:
-      - "7689:7687"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 256M
-        reservations:
-          cpus: '0.50'
-          memory: 256M
+  # 1. CognoDB (Managed Cloud Baseline or Private Container)
+  # Note: CognoDB Cloud runs at bolt+s://db-04cc39ff.bravo.databases.cognodb.com
+  # Uncomment below if you have access to a private CognoDB Docker image:
+  # cognodb-local:
+  #   image: ghcr.io/cognodb/cognodb:latest
+  #   container_name: wexa-cognodb-local
+  #   restart: unless-stopped
+  #   ports:
+  #     - "7689:7687"
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.50'
+  #         memory: 256M
+  #       reservations:
+  #         cpus: '0.50'
+  #         memory: 256M
 
   # 2. Neo4j 5 Community
-  # Capped at 0.50 vCPU / 256MB RAM
+  # Capped at 0.50 vCPU / 512MB RAM
   neo4j-local:
     image: neo4j:5-community
     container_name: wexa-neo4j-local
     restart: unless-stopped
     environment:
       - NEO4J_AUTH=neo4j/benchmarkpassword
-      - NEO4J_dbms_memory_heap_max__size=180m
-      - NEO4J_dbms_memory_pagecache_size=50m
+      - NEO4J_server_config_strict__validation_enabled=false
+      - NEO4J_server_memory_heap_max__size=380m
+      - NEO4J_server_memory_pagecache_size=80m
+      - NEO4J_dbms_memory_transaction_total__max=0
     ports:
       - "7687:7687"
       - "7474:7474"
@@ -35,49 +36,49 @@ services:
       resources:
         limits:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
         reservations:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
 
   # 3. Memgraph Platform / Native
-  # Capped at 0.50 vCPU / 256MB RAM
+  # Capped at 0.50 vCPU / 512MB RAM
   memgraph-local:
     image: memgraph/memgraph:latest
     container_name: wexa-memgraph-local
     restart: unless-stopped
-    command: ["--memory-limit=256"]
+    command: ["--memory-limit=512"]
     ports:
       - "7688:7687"
     deploy:
       resources:
         limits:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
         reservations:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
 
   # 4. FalkorDB (GraphBLAS Linear Algebra Engine)
-  # Capped at 0.50 vCPU / 256MB RAM
+  # Capped at 0.50 vCPU / 512MB RAM
   falkordb-local:
     image: falkordb/falkordb:latest
     container_name: wexa-falkordb-local
     restart: unless-stopped
-    command: ["falkordb-server", "--maxmemory", "256mb"]
+    command: ["falkordb-server", "--maxmemory", "512mb"]
     ports:
       - "6379:6379"
     deploy:
       resources:
         limits:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
         reservations:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
 
   # 5. ArangoDB (Multi-Model RocksDB Engine)
-  # Capped at 0.50 vCPU / 256MB RAM
+  # Capped at 0.50 vCPU / 512MB RAM
   arangodb-local:
     image: arangodb:latest
     container_name: wexa-arangodb-local
@@ -90,7 +91,64 @@ services:
       resources:
         limits:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
         reservations:
           cpus: '0.50'
-          memory: 256M
+          memory: 512M
+
+  # 6. ArcadeDB (Multi-Model openCypher / JSON Engine)
+  # Capped at 0.50 vCPU / 512MB RAM
+  arcadedb-local:
+    image: arcadedata/arcadedb:latest
+    container_name: wexa-arcadedb-local
+    restart: unless-stopped
+    environment:
+      - JAVA_OPTS=-Darcadedb.server.rootPassword=benchmarkpassword -Xms256m -Xmx400m
+    ports:
+      - "2480:2480"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.50'
+          memory: 512M
+
+  # 7. JanusGraph (TinkerPop Gremlin Engine)
+  # Capped at 0.50 vCPU / 512MB RAM
+  janusgraph-local:
+    image: janusgraph/janusgraph:latest
+    container_name: wexa-janusgraph-local
+    restart: unless-stopped
+    environment:
+      - JANUS_PROPS_template_storage_backend=inmemory
+      - gremlinserver.channelizer=org.apache.tinkerpop.gremlin.server.channel.WsAndHttpChannelizer
+      - JAVA_OPTIONS=-Xms256m -Xmx400m
+    ports:
+      - "8182:8182"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.50'
+          memory: 512M
+
+  # 8. KùzuDB (Columnar Embedded / Web API Engine)
+  # Capped at 0.50 vCPU / 512MB RAM
+  kuzudb-local:
+    image: kuzudb/explorer:latest
+    container_name: wexa-kuzudb-local
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.50'
+          memory: 512M

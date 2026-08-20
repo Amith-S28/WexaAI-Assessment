@@ -36,7 +36,10 @@ from benchmarks.adapters import (
     Neo4jAdapter,
     MemgraphAdapter,
     FalkorDBAdapter,
-    ArangoDBAdapter
+    ArangoDBAdapter,
+    KuzuDBAdapter,
+    ArcadeDBAdapter,
+    JanusGraphAdapter
 )
 
 def get_adapter(db_name: str):
@@ -72,8 +75,23 @@ def get_adapter(db_name: str):
             user=os.getenv("ARANGODB_USER", "root"),
             password=os.getenv("ARANGODB_PASSWORD")
         )
+    elif db_name in ["kuzu", "kuzudb", "6"]:
+        return KuzuDBAdapter(
+            endpoint=os.getenv("KUZU_ENDPOINT", "http://localhost:8000")
+        )
+    elif db_name in ["arcadedb", "arcade", "7"]:
+        return ArcadeDBAdapter(
+            url=os.getenv("ARCADEDB_URL", "http://localhost:2480"),
+            user=os.getenv("ARCADEDB_USER", "root"),
+            password=os.getenv("ARCADEDB_PASSWORD", "benchmarkpassword"),
+            database=os.getenv("ARCADEDB_DATABASE", "benchmark")
+        )
+    elif db_name in ["janusgraph", "janus", "8"]:
+        return JanusGraphAdapter(
+            endpoint=os.getenv("JANUSGRAPH_ENDPOINT", "http://localhost:8182")
+        )
     else:
-        raise ValueError(f"Unknown database: {db_name}. Choose from: cognodb, neo4j, memgraph, falkordb, arangodb")
+        raise ValueError(f"Unknown database: {db_name}. Choose from: cognodb, neo4j, memgraph, falkordb, arangodb, kuzu, arcadedb, janusgraph")
 
 def run_deep_individual_test(adapter):
     console.print(Panel(

@@ -1,0 +1,236 @@
+{
+  "nodes": [
+    {
+      "id": "benchmark_analysis_architectural_paradigms",
+      "label": "Graph Database Architectural Paradigms",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": "BENCHMARK_ANALYSIS.md#L20-L30",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "benchmark_analysis_cognodb_c0",
+      "label": "CognoDB Cloud (c0) Architecture",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": "BENCHMARK_ANALYSIS.md#L25",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "benchmark_analysis_neo4j_auradb",
+      "label": "Neo4j AuraDB Architecture",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": "BENCHMARK_ANALYSIS.md#L26",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "benchmark_analysis_memgraph_cloud",
+      "label": "Memgraph Cloud Architecture",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": "BENCHMARK_ANALYSIS.md#L27",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "benchmark_analysis_falkordb_cloud",
+      "label": "FalkorDB GraphBLAS Matrix Engine",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": "BENCHMARK_ANALYSIS.md#L28",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "benchmark_analysis_arangodb_oasis",
+      "label": "ArangoDB Oasis Multi-Model Architecture",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": "BENCHMARK_ANALYSIS.md#L29",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_dataset_snap_pokec_350k",
+      "label": "SNAP Pokec 350K Social Graph Dataset",
+      "file_type": "document",
+      "source_file": "D:\\Projects\\WEXA\\README.md",
+      "source_location": "README.md#L29-L35",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_concurrency_stress_workload",
+      "label": "Concurrency & ACID Stress Workload (1-40 Workers)",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\README.md",
+      "source_location": "README.md#L81-L90",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_multihop_traversal_protocol",
+      "label": "Multi-Hop Traversal Latency Profiling",
+      "file_type": "concept",
+      "source_file": "D:\\Projects\\WEXA\\README.md",
+      "source_location": "README.md#L53-L64",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docker_compose_benchmark_capped_environment",
+      "label": "Resource Capped Docker Environment (0.50 vCPU / 256M)",
+      "file_type": "document",
+      "source_file": "D:\\Projects\\WEXA\\docker-compose.benchmark.yml",
+      "source_location": "docker-compose.benchmark.yml#L1-L90",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cloudrun_benchmark_results_telemetry",
+      "label": "Cloud Run Telemetry & Statistical Results",
+      "file_type": "document",
+      "source_file": "D:\\Projects\\WEXA\\CloudRun\\results\\summary_tables.md",
+      "source_location": "CloudRun/results/summary_tables.md",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "benchmark_analysis_architectural_paradigms",
+      "target": "benchmark_analysis_cognodb_c0",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "benchmark_analysis_architectural_paradigms",
+      "target": "benchmark_analysis_neo4j_auradb",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "benchmark_analysis_architectural_paradigms",
+      "target": "benchmark_analysis_memgraph_cloud",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "benchmark_analysis_architectural_paradigms",
+      "target": "benchmark_analysis_falkordb_cloud",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "benchmark_analysis_architectural_paradigms",
+      "target": "benchmark_analysis_arangodb_oasis",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_dataset_snap_pokec_350k",
+      "target": "readme_multihop_traversal_protocol",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\Projects\\WEXA\\README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_multihop_traversal_protocol",
+      "target": "cloudrun_benchmark_results_telemetry",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\Projects\\WEXA\\README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_concurrency_stress_workload",
+      "target": "cloudrun_benchmark_results_telemetry",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "D:\\Projects\\WEXA\\README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docker_compose_benchmark_capped_environment",
+      "target": "benchmark_analysis_architectural_paradigms",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "D:\\Projects\\WEXA\\docker-compose.benchmark.yml",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "cloud_benchmark_ecosystem_comparison",
+      "label": "5-Engine Cloud Benchmark Comparison Suite",
+      "nodes": [
+        "benchmark_analysis_cognodb_c0",
+        "benchmark_analysis_neo4j_auradb",
+        "benchmark_analysis_memgraph_cloud",
+        "benchmark_analysis_falkordb_cloud",
+        "benchmark_analysis_arangodb_oasis"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "D:\\Projects\\WEXA\\BENCHMARK_ANALYSIS.md"
+    }
+  ],
+  "input_tokens": 1250,
+  "output_tokens": 620
+}

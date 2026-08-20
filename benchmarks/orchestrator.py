@@ -21,7 +21,10 @@ from benchmarks.adapters import (
     Neo4jAdapter,
     MemgraphAdapter,
     FalkorDBAdapter,
-    ArangoDBAdapter
+    ArangoDBAdapter,
+    KuzuDBAdapter,
+    ArcadeDBAdapter,
+    JanusGraphAdapter
 )
 from benchmarks.workload_runner import WorkloadRunner
 from benchmarks.report_generator import ReportGenerator
@@ -33,11 +36,11 @@ RESULTS_DIR = Path("d:/Projects/WEXA/results")
 ASSETS_DIR = Path("d:/Projects/WEXA/assets")
 
 class BenchmarkOrchestrator:
-    """Orchestrates benchmark runs across multiple graph databases."""
+    """Master orchestrator for running multi-database cloud/local benchmarks."""
     
     def __init__(
         self, 
-        selected_dbs: List[str] = None, 
+        selected_dbs: Optional[List[str]] = None, 
         iterations: int = 100, 
         node_limit: Optional[int] = None, 
         edge_limit: Optional[int] = None,
@@ -94,6 +97,21 @@ class BenchmarkOrchestrator:
                 url=os.getenv("ARANGODB_URL"),
                 user=os.getenv("ARANGODB_USER", "root"),
                 password=os.getenv("ARANGODB_PASSWORD")
+            ))
+        if "kuzu" in self.selected_dbs or "kuzudb" in self.selected_dbs:
+            adapters.append(KuzuDBAdapter(
+                endpoint=os.getenv("KUZU_ENDPOINT", "http://localhost:8000")
+            ))
+        if "arcadedb" in self.selected_dbs:
+            adapters.append(ArcadeDBAdapter(
+                url=os.getenv("ARCADEDB_URL", "http://localhost:2480"),
+                user=os.getenv("ARCADEDB_USER", "root"),
+                password=os.getenv("ARCADEDB_PASSWORD", "benchmarkpassword"),
+                database=os.getenv("ARCADEDB_DATABASE", "benchmark")
+            ))
+        if "janusgraph" in self.selected_dbs:
+            adapters.append(JanusGraphAdapter(
+                endpoint=os.getenv("JANUSGRAPH_ENDPOINT", "http://localhost:8182")
             ))
         return adapters
 

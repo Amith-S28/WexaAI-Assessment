@@ -9,6 +9,9 @@ from .neo4j import Neo4jAdapter
 from .memgraph import MemgraphAdapter
 from .falkordb import FalkorDBAdapter
 from .arangodb import ArangoDBAdapter
+from .kuzu import KuzuDBAdapter
+from .arcadedb import ArcadeDBAdapter
+from .janusgraph import JanusGraphAdapter
 
 __all__ = [
     "BaseGraphAdapter",
@@ -17,5 +20,8 @@ __all__ = [
     "Neo4jAdapter",
     "MemgraphAdapter",
     "FalkorDBAdapter",
-    "ArangoDBAdapter"
+    "ArangoDBAdapter",
+    "KuzuDBAdapter",
+    "ArcadeDBAdapter",
+    "JanusGraphAdapter"
 ]
