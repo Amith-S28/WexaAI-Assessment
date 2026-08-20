@@ -1,0 +1,16 @@
+{
+  "dataset_name": "SNAP soc-Pokec Social Network (Calibrated 350K Sample)",
+  "source_url": "https://snap.stanford.edu/data/soc-pokec-relationships.txt.gz",
+  "calibrated_relationship_count": 350000,
+  "unique_node_count": 148587,
+  "relationship_type": "FOLLOWS",
+  "average_node_degree": 4.71,
+  "max_node_degree": 8863,
+  "nodes_file": "data/nodes.csv",
+  "nodes_file_size_mb": 3.85,
+  "nodes_file_md5": "10f812c69e88e788e230b80c1ed68e25",
+  "edges_file": "data/edges.csv",
+  "edges_file_size_mb": 8.0,
+  "edges_file_md5": "175a0fc60d99c3c6b40a7f6db1012289",
+  "generated_at": "2026-08-20T16:05:35Z"
+}

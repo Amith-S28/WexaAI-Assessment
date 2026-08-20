@@ -1,0 +1,46 @@
+"""
+Root CLI Runner for Wexa AI Graph Database Cloud Benchmarks.
+Usage:
+    python run_benchmark.py --all
+    python run_benchmark.py --db cognodb,neo4j,memgraph
+    python run_benchmark.py --nodes 10000 --edges 50000 --iterations 50
+"""
+
+import sys
+import argparse
+from pathlib import Path
+
+# Add project root to sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+# Force UTF-8 on Windows
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
+from benchmarks.orchestrator import BenchmarkOrchestrator
+
+def main():
+    parser = argparse.ArgumentParser(description="Wexa AI Graph Database Cloud Benchmark Runner")
+    parser.add_argument("--db", type=str, default="all", help="Comma-separated DBs: cognodb,neo4j,memgraph,falkordb,arangodb or 'all'")
+    parser.add_argument("--nodes", type=int, default=None, help="Limit number of nodes to ingest (default: all ~148k)")
+    parser.add_argument("--edges", type=int, default=None, help="Limit number of edges to ingest (default: all 350k)")
+    parser.add_argument("--iterations", type=int, default=100, help="Number of query repetitions for percentile stats (default: 100)")
+    
+    args = parser.parse_args()
+    
+    if args.db.lower() == "all":
+        selected = ["cognodb", "neo4j", "memgraph", "falkordb", "arangodb"]
+    else:
+        selected = [d.strip() for d in args.db.split(",")]
+        
+    orchestrator = BenchmarkOrchestrator(
+        selected_dbs=selected,
+        iterations=args.iterations,
+        node_limit=args.nodes,
+        edge_limit=args.edges
+    )
+    orchestrator.run()
+
+if __name__ == "__main__":
+    main()

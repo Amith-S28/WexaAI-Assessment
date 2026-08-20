@@ -1,0 +1,27 @@
+# Environment variables & credentials (NEVER COMMIT SECRETS)
+.env
+*.env
+*.pem
+credentials.txt
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# Raw benchmark data & large datasets
+data/*.txt
+data/*.csv
+data/*.gz
+data/*.tar.gz
+data/raw/
+kuzu_db/
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db

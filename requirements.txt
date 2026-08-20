@@ -1,0 +1,12 @@
+# Graph Database Cloud Benchmarking Dependencies
+neo4j>=5.20.0
+python-dotenv>=1.0.0
+falkordb>=1.0.8
+kuzu>=0.8.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+pandas>=2.2.0
+numpy>=1.26.0
+requests>=2.31.0
+rich>=13.7.0
+tqdm>=4.66.0
