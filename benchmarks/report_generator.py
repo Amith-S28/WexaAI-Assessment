@@ -231,5 +231,19 @@ class ReportGenerator:
             p95_40 = c["concurrency_40_clients"]["p95_ms"]
             scale_fac = round(qps_40 / qps_1, 1) if qps_1 > 0 else 0
             md.append(f"| **{db}** | {qps_1} QPS ({p95_1}ms) | {qps_10} QPS ({p95_10}ms) | {qps_40} QPS ({p95_40}ms) | **{scale_fac}x** |")
-            
+
+        md.append("\n### 🌐 Network RTT vs Server-Side Net Compute Time (p50)\n")
+        md.append("| Database | Baseline Network RTT | 1-Hop p50 (Gross) | 1-Hop Net Compute | 2-Hop Net Compute | 3-Hop Net Compute |")
+        md.append("|:---|:---:|:---:|:---:|:---:|:---:|")
+        for db, res in self.data.items():
+            rtt = res.get("baseline_rtt_ms", 0.0)
+            q = res["queries"]
+            h1 = q.get("traversal_1_hop", {}).get("p50_ms", 0)
+            h2 = q.get("traversal_2_hop", {}).get("p50_ms", 0)
+            h3 = q.get("traversal_3_hop", {}).get("p50_ms", 0)
+            net_h1 = max(0.0, round(h1 - rtt, 2)) if h1 > 0 else 0.0
+            net_h2 = max(0.0, round(h2 - rtt, 2)) if h2 > 0 else 0.0
+            net_h3 = max(0.0, round(h3 - rtt, 2)) if h3 > 0 else 0.0
+            md.append(f"| **{db}** | {rtt:.2f} ms | {h1:.2f} ms | **{net_h1:.2f} ms** | **{net_h2:.2f} ms** | **{net_h3:.2f} ms** |")
+
         return "\n".join(md)

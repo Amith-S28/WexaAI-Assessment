@@ -32,24 +32,73 @@ def load_data():
     with open(RESULTS_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
+def _normalize(values, higher_is_better=True):
+    """Min-max normalize a list of values to 0-100 scale."""
+    vmin, vmax = min(values), max(values)
+    if vmax == vmin:
+        return [50.0] * len(values)
+    if higher_is_better:
+        return [round(100 * (v - vmin) / (vmax - vmin), 1) for v in values]
+    else:
+        return [round(100 * (vmax - v) / (vmax - vmin), 1) for v in values]
+
+
 def generate_radar_chart(data):
     categories = [
         "Ingestion\nThroughput",
-        "Traversal\nSpeed (1-3 Hop)",
+        "Traversal\nSpeed (Low p50)",
         "Tail Latency\nStability (Low Δ)",
-        "Concurrency\nScaling (40x)",
-        "Memory\nEfficiency"
+        "Concurrency\nScaling (40x QPS)",
     ]
     N = len(categories)
     
-    # Normalized scores out of 100 based on empirical measurements
-    scores = {
-        "CognoDB Cloud": [78, 86, 98, 88, 95],
-        "Neo4j AuraDB":  [80, 88, 92, 89, 70],
-        "Memgraph Cloud": [88, 96, 85, 91, 75],
-        "FalkorDB Cloud": [98, 92, 95, 99, 85],
-        "ArangoDB Oasis": [25, 75, 70, 40, 65],
-    }
+    # Extract raw metrics from benchmark data
+    db_names = list(data.keys())
+    
+    # Axis 1: Edge ingestion throughput (higher is better)
+    raw_ingest = [data[db].get("ingest", {}).get("edges_per_sec", 0) for db in db_names]
+    
+    # Axis 2: Average traversal p50 across 1-hop, 2-hop, 3-hop (lower is better)
+    raw_traverse = []
+    for db in db_names:
+        queries = data[db].get("queries", {})
+        hops = []
+        for key in ["traversal_1_hop", "traversal_2_hop", "traversal_3_hop"]:
+            p50 = queries.get(key, {}).get("p50_ms", 0)
+            if p50 > 0:
+                hops.append(p50)
+        raw_traverse.append(sum(hops) / len(hops) if hops else 999)
+    
+    # Axis 3: Tail jitter = average (p95 - p50) across all query types (lower is better)
+    raw_jitter = []
+    for db in db_names:
+        queries = data[db].get("queries", {})
+        deltas = []
+        for qstats in queries.values():
+            p50 = qstats.get("p50_ms", 0)
+            p95 = qstats.get("p95_ms", 0)
+            if p50 > 0 and p95 > 0:
+                deltas.append(p95 - p50)
+        raw_jitter.append(sum(deltas) / len(deltas) if deltas else 999)
+    
+    # Axis 4: 40-client sustained QPS (higher is better)
+    raw_qps40 = [data[db].get("concurrency", {}).get("concurrency_40_clients", {}).get("qps", 0) for db in db_names]
+    
+    # Normalize each axis to 0-100
+    norm_ingest = _normalize(raw_ingest, higher_is_better=True)
+    norm_traverse = _normalize(raw_traverse, higher_is_better=False)
+    norm_jitter = _normalize(raw_jitter, higher_is_better=False)
+    norm_qps = _normalize(raw_qps40, higher_is_better=True)
+    
+    # Build scores dict: floor at 10 to keep the chart readable
+    scores = {}
+    for i, db in enumerate(db_names):
+        scores[db] = [
+            max(10, norm_ingest[i]),
+            max(10, norm_traverse[i]),
+            max(10, norm_jitter[i]),
+            max(10, norm_qps[i]),
+        ]
     
     angles = [n / float(N) * 2 * np.pi for n in range(N)]
     angles += angles[:1]
@@ -63,16 +112,12 @@ def generate_radar_chart(data):
     plt.ylim(0, 105)
     
     for db_name, values in scores.items():
-        if db_name not in data and not any(db_name.lower().startswith(k.lower()) for k in data.keys()):
-            continue
         vals = values + values[:1]
         color = DB_COLORS.get(db_name, "#475569")
-        linewidth = 2.8 if "CognoDB" in db_name else 1.8
-        alpha = 0.22 if "CognoDB" in db_name else 0.08
-        ax.plot(angles, vals, linewidth=linewidth, linestyle="solid", label=db_name, color=color)
-        ax.fill(angles, vals, color=color, alpha=alpha)
+        ax.plot(angles, vals, linewidth=2.0, linestyle="solid", label=db_name, color=color)
+        ax.fill(angles, vals, color=color, alpha=0.10)
         
-    plt.title("Multi-Dimensional Engine Performance Profile\n(100-Iteration Cloud Benchmark · 0-100 Score)", 
+    plt.title("Multi-Dimensional Engine Performance Profile\n(Data-Derived Min-Max Normalization · 0-100 Scale)", 
               size=14, weight="bold", color="#0F172A", pad=28)
     plt.legend(loc="upper right", bbox_to_anchor=(1.3, 1.1), frameon=True, facecolor="#FFFFFF", edgecolor="#E2E8F0")
     plt.tight_layout()
@@ -225,8 +270,7 @@ def generate_quadrant_matrix():
     
     for db, (x, y, desc) in db_positions.items():
         color = DB_COLORS[db]
-        size = 280 if "CognoDB" in db else 200
-        ax.scatter(x, y, color=color, edgecolors="#0F172A", s=size, linewidth=1.8, zorder=4)
+        ax.scatter(x, y, color=color, edgecolors="#0F172A", s=220, linewidth=1.8, zorder=4)
         
         # Label offset
         offset_y = 4.2 if y < 85 else -5.5

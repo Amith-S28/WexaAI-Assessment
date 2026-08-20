@@ -164,13 +164,12 @@ class WorkloadRunner:
         
         for concurrency in self.concurrency_levels:
             stop_time = time.time() + duration_per_level_sec
-            tx_latencies = []
-            success_count = 0
-            fail_count = 0
             
+            # Thread-safe: each worker returns its own counts instead of mutating shared state
             def worker_loop(worker_id: int):
-                nonlocal success_count, fail_count
                 local_lats = []
+                local_success = 0
+                local_fail = 0
                 while time.time() < stop_time:
                     read_id = random.choice(self.node_ids)
                     write_node = {
@@ -181,12 +180,15 @@ class WorkloadRunner:
                     lat_ms, ok = self.adapter.execute_mixed_transaction(read_id, write_node)
                     local_lats.append(lat_ms)
                     if ok:
-                        success_count += 1
+                        local_success += 1
                     else:
-                        fail_count += 1
-                return local_lats
+                        local_fail += 1
+                return local_lats, local_success, local_fail
 
             t0 = time.perf_counter()
+            tx_latencies = []
+            success_count = 0
+            fail_count = 0
             
             # Visual progress bar for countdown duration
             with tqdm(total=duration_per_level_sec, desc=f"  Concurrency [{concurrency:2} Workers]    ", unit="s", ncols=90, leave=True) as pbar:
@@ -201,12 +203,18 @@ class WorkloadRunner:
                         if inc > 0:
                             pbar.update(inc)
                             last_elapsed = elapsed
-                        curr_tx = success_count + fail_count
-                        curr_qps = curr_tx / max(1, (time.time() - start_sweep))
-                        pbar.set_postfix({"TXs": curr_tx, "QPS": f"{curr_qps:.1f}"})
+                        # Estimate from completed futures only (no race)
+                        done_count = sum(1 for f in futures if f.done())
+                        est_tx = int(done_count * (success_count + fail_count) / max(1, done_count))
+                        curr_qps = est_tx / max(1, (time.time() - start_sweep))
+                        pbar.set_postfix({"TXs": est_tx, "QPS": f"{curr_qps:.1f}"})
                         
+                    # Aggregate results from all workers (thread-safe: futures are done)
                     for f in as_completed(futures):
-                        tx_latencies.extend(f.result())
+                        lats, s, fl = f.result()
+                        tx_latencies.extend(lats)
+                        success_count += s
+                        fail_count += fl
                 # Ensure 100% full bar
                 if pbar.n < duration_per_level_sec:
                     pbar.update(duration_per_level_sec - pbar.n)
@@ -260,5 +268,13 @@ class WorkloadRunner:
             "footprint": footprint_res,
             "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         }
+        
+        # Compute net server-side compute time (measured - baseline RTT) for each query type
+        net_compute = {}
+        for qtype, qstats in read_res.items():
+            p50 = qstats.get("p50_ms", 0)
+            net = max(0, round(p50 - rtt_ms, 2))
+            net_compute[qtype] = {"p50_net_compute_ms": net}
+        full_results["net_compute"] = net_compute
         
         return full_results
