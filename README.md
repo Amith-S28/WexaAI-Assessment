@@ -72,13 +72,36 @@ To ensure absolute scientific fairness and eliminate network bias:
 | **ArangoDB Oasis** | **3.63 QPS (386ms)** | **33.46 QPS (392ms)** | 26.12 QPS (2,978ms) | **7.2x** |
 
 ![Concurrency Scaling QPS](assets/concurrency_scaling_qps.png)
+![Concurrency Speedup Factor](assets/concurrency_speedup_factor.png)
 ![Concurrency p95 Latency](assets/concurrency_p95_latency.png)
 
 ---
 
-### 4. Overall Benchmark Matrix
+### 4. Tail-Latency Predictability & Jitter Comparison (p50 vs p95)
+
+![Tail Latency Jitter](assets/jitter_tail_latency_comparison.png)
+
+---
+
+### 5. Multi-Dimensional Performance Radar & Strategic Positioning
+
+| Multi-Dimensional Radar Profile | Strategic Architecture Quadrant |
+| :---: | :---: |
+| ![Radar Profile](assets/radar_performance_profile.png) | ![Strategic Quadrant](assets/architectural_tradeoff_quadrant.png) |
+
+---
+
+### 6. Overall Benchmark Heatmap Matrix
 
 ![Overall Matrix](assets/comprehensive_benchmark_matrix.png)
+
+---
+
+## 🎨 Interactive Visual Metric Diagrams
+
+Explore the full suite of interactive SVG metric diagrams with tabbed analysis:
+👉 **[Open Interactive Benchmark Metric Diagrams (HTML)](benchmark-metrics-diagrams.html)**
+👉 **[Open Interactive Architecture Execution Plan (HTML)](benchmark-execution-plan.html)**
 
 ---
 
