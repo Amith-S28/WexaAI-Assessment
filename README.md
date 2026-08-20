@@ -25,6 +25,7 @@ An empirical, reproducible systems performance benchmark comparing **Wexa AI's C
 
 To ensure absolute scientific fairness and eliminate network bias:
 1. **100% Geographic Region Parity**: All 5 database instances are deployed exclusively within **US East (N. Virginia / Ashburn)**.
+   > **Note on Neo4j Aura**: Neo4j's Free tier does not permit custom region selection (which would introduce 150–250ms cross-region network skew). To enforce strict US-East geographic parity with all other databases, Neo4j was provisioned on an **Aura Professional instance (14-day trial) in AWS `us-east-1`**.
 2. **Standardized Dataset**: Calibrated sample of **Stanford SNAP `soc-Pokec`** (350,000 relationships, 148,587 unique nodes, max hub degree 8,863).
 3. **Reproducible Checksums**:
    * `data/nodes.csv` MD5: `10f812c69e88e788e230b80c1ed68e25`
