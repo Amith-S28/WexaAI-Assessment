@@ -1,12 +1,13 @@
-"""
-ArangoDB Oasis Cloud Adapter.
-Implements BaseGraphAdapter for ArangoDB's multi-model document+graph engine via AQL.
-"""
-
 import time
+import warnings
+import urllib3
 from typing import Dict, List, Tuple, Any, Optional
 from arango import ArangoClient
 from .base import BaseGraphAdapter
+
+# Suppress unverified HTTPS warnings for cloud endpoints
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
 
 class ArangoDBAdapter(BaseGraphAdapter):
     """Adapter for ArangoDB Oasis Cloud multi-model graph engine."""

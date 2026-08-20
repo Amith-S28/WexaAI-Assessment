@@ -212,8 +212,9 @@ class BoltGraphAdapter(BaseGraphAdapter):
         """Inspect storage where platform exposes it."""
         try:
             with self.driver.session() as session:
-                res = session.run("CALL dbms.components() YIELD name, versions, edition RETURN name, versions, edition").single()
-                if res:
+                records = list(session.run("CALL dbms.components() YIELD name, versions, edition RETURN name, versions, edition"))
+                if records:
+                    res = records[0]
                     return {"engine": res["name"], "version": res["versions"], "edition": res["edition"]}
         except Exception:
             pass

@@ -8,7 +8,14 @@ Usage:
 
 import sys
 import argparse
+import warnings
+import urllib3
 from pathlib import Path
+
+# Suppress library deprecation and unverified HTTPS warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=urllib3.exceptions.InsecureRequestWarning)
 
 # Add project root to sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
