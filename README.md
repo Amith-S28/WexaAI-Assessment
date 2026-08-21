@@ -193,7 +193,7 @@ To guarantee scientific rigor, auditability, and exact reproducibility, all benc
 | **Processor (CPU)**        | **AMD Ryzen 7 5800H with Radeon Graphics** | 8 Physical Cores, 16 Logical Threads @ 3.20 GHz (Max Boost 4.40 GHz) |
 | **L1 / L2 / L3 CPU Cache** | **512 KB L1, 4 MB L2, 16 MB L3 Unified**   | High-speed cache for vectorized SIMD operations                      |
 | **System Memory (RAM)**    | **16.0 GB DDR4 (2 × 8GB Dual-Channel)**    | Samsung DDR4-3200 MHz (`ConfiguredClockSpeed: 3200 MT/s`)            |
-| **Discrete GPU**           | **AMD Radeon RX 6600M (4 GB GDDR6 VRAM)**  | Driver: `32.0.21045.1000`, PCI-Express 4.0                           |
+| **Discrete GPU**           | **AMD Radeon RX 6600M (8 GB GDDR6 VRAM)**  | Driver: `32.0.21045.1000`, PCI-Express 4.0                           |
 | **Integrated GPU**         | **AMD Radeon(TM) Graphics (512 MB VRAM)**  | Driver: `31.0.21923.11000`                                           |
 | **Storage Subsystem**      | **High-Speed PCIe NVMe Solid State Drive** | NTFS Filesystem, 4K Alignment, High-IOPS Local Benchmark Partition   |
 | **Terminal & Shell**       | **PowerShell 5.1 / Windows Terminal**      | Process isolation, UTF-8 Encoding (`chcp 65001`)                     |
