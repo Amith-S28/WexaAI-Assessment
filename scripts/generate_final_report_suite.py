@@ -1355,9 +1355,8 @@ def main():
     generate_markdown_report(local_data, cloud_data, report_dir / "FINAL_REPORT.md")
     generate_markdown_report(local_data, cloud_data, report_dir / "summary_tables.md")
     
+    # Single canonical HTML dashboard
     build_executive_html(local_data, cloud_data, assets_dir, report_dir / "index.html")
-    build_executive_html(local_data, cloud_data, assets_dir, report_dir / "final_report.html")
-    build_executive_html(local_data, cloud_data, assets_dir, Path("benchmark_comparison_dashboard.html"))
 
 if __name__ == "__main__":
     main()
