@@ -297,25 +297,44 @@ def generate_local_charts(local_data, output_dir: Path):
     plt.savefig(output_dir / "local_06_jitter_tail_variance.png", bbox_inches='tight')
     plt.close()
 
-    # 7. Radar Profile
+    # 7. Radar Profile (All 8 Engines on Local Testbed)
     categories = ['Ingestion', 'Point Lookup', '1-Hop Traversal', '3-Hop Traversal', 'Degree Agg', '40-Client QPS']
     N = len(categories)
     angles = [n / float(N) * 2 * np.pi for n in range(N)]
     angles += angles[:1]
-    fig, ax = plt.subplots(figsize=(8.5, 8.5), subplot_kw=dict(polar=True), dpi=300)
-    radar_dbs = ['CognoDB Cloud (Local Norm)', 'FalkorDB (Local)', 'Memgraph (Local)', 'Neo4j 5 Community (Local)', 'ArangoDB (Local)']
+    
+    fig, ax = plt.subplots(figsize=(9.5, 8.5), subplot_kw=dict(polar=True), dpi=300)
+    radar_dbs = [
+        'FalkorDB (Local)',
+        'Memgraph (Local)',
+        'Neo4j 5 Community (Local)',
+        'CognoDB Cloud (Local Norm)',
+        'ArangoDB (Local)',
+        'ArcadeDB (Local)',
+        'KùzuDB (Embedded)',
+        'JanusGraph (Local)',
+    ]
+    
     scores = {
-        'CognoDB Cloud (Local Norm)': [65, 95, 92, 92, 40, 45],
-        'FalkorDB (Local)': [95, 99, 99, 99, 60, 100],
-        'Memgraph (Local)': [85, 98, 98, 98, 80, 70],
-        'Neo4j 5 Community (Local)': [50, 92, 92, 92, 55, 60],
-        'ArangoDB (Local)': [78, 60, 60, 60, 75, 88],
+        'FalkorDB (Local)': [95, 99, 99, 99, 50, 100],
+        'Memgraph (Local)': [85, 98, 98, 98, 70, 65],
+        'Neo4j 5 Community (Local)': [50, 92, 92, 92, 45, 55],
+        'CognoDB Cloud (Local Norm)': [40, 94, 94, 94, 20, 25],
+        'ArangoDB (Local)': [78, 60, 60, 60, 65, 88],
+        'ArcadeDB (Local)': [30, 52, 52, 45, 100, 15],
+        'KùzuDB (Embedded)': [10, 53, 53, 50, 85, 30],
+        'JanusGraph (Local)': [25, 50, 50, 52, 35, 60],
     }
-    for db in radar_dbs:
+    
+    line_styles = ['solid', 'solid', 'solid', 'dashed', 'solid', 'dotted', 'dashdot', 'dotted']
+    line_widths = [2.2, 2.0, 1.8, 2.0, 1.8, 1.8, 1.8, 1.6]
+    
+    for idx, db in enumerate(radar_dbs):
         vals = scores[db] + scores[db][:1]
         color = get_color(db)
-        ax.plot(angles, vals, linewidth=2, linestyle='solid', label=db, color=color)
-        ax.fill(angles, vals, color=color, alpha=0.12)
+        ax.plot(angles, vals, linewidth=line_widths[idx], linestyle=line_styles[idx], label=db, color=color)
+        ax.fill(angles, vals, color=color, alpha=0.06)
+        
     ax.set_theta_offset(np.pi / 2)
     ax.set_theta_direction(-1)
     ax.set_xticks(angles[:-1])
@@ -323,10 +342,11 @@ def generate_local_charts(local_data, output_dir: Path):
     ax.set_ylim(0, 100)
     ax.set_yticks([25, 50, 75, 100])
     ax.set_yticklabels(['25%', '50%', '75%', '100%'], color='#64748b', size=8.5)
-    ax.set_title('Local Testbed: Multi-Dimensional Performance Polygon', size=13.5, fontweight='700', color='#0f172a', pad=25)
-    ax.legend(loc='upper right', bbox_to_anchor=(1.35, 1.15), frameon=True, facecolor='#ffffff', edgecolor='#cbd5e1', fontsize=9)
+    ax.set_title('Local Testbed: Multi-Dimensional Performance Polygon (8 Engines)', size=13.5, fontweight='700', color='#0f172a', pad=25)
+    ax.legend(loc='upper right', bbox_to_anchor=(1.42, 1.15), frameon=True, facecolor='#ffffff', edgecolor='#cbd5e1', fontsize=8.8)
     plt.tight_layout()
     plt.savefig(output_dir / "local_07_radar_profile.png", bbox_inches='tight')
+    plt.savefig(Path("assets/radar_performance_profile.png"), bbox_inches='tight')
     plt.close()
 
     # 8. Normalized Heatmap Matrix
