@@ -1,6 +1,6 @@
 services:
   # 1. CognoDB (Managed Cloud Baseline or Private Container)
-  # Note: CognoDB Cloud runs at bolt+s://db-04cc39ff.bravo.databases.cognodb.com
+  # Note: CognoDB Cloud runs at bolt+s://<instance-id>.databases.cognodb.cloud
   # Uncomment below if you have access to a private CognoDB Docker image:
   # cognodb-local:
   #   image: ghcr.io/cognodb/cognodb:latest

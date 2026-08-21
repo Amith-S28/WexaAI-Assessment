@@ -145,13 +145,13 @@ def main():
     # 7. ArcadeDB
     arcade_url = os.getenv("ARCADEDB_URL", "http://localhost:2480")
     arcade_user = os.getenv("ARCADEDB_USER", "root")
-    arcade_pwd = os.getenv("ARCADEDB_PASSWORD", "benchmarkpassword")
+    arcade_pwd = os.getenv("ARCADEDB_PASSWORD", "")
     console.print(f"[bold cyan]Testing ArcadeDB ({arcade_url})...[/bold cyan]")
     if arcade_url:
         try:
             import requests
             from requests.auth import HTTPBasicAuth
-            auth = HTTPBasicAuth(arcade_user, arcade_pwd)
+            auth = HTTPBasicAuth(arcade_user, arcade_pwd) if (arcade_user or arcade_pwd) else None
             t0 = time.perf_counter_ns()
             # Ensure database exists
             try:

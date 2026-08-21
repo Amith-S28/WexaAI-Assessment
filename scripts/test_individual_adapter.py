@@ -83,7 +83,7 @@ def get_adapter(db_name: str):
         return ArcadeDBAdapter(
             url=os.getenv("ARCADEDB_URL", "http://localhost:2480"),
             user=os.getenv("ARCADEDB_USER", "root"),
-            password=os.getenv("ARCADEDB_PASSWORD", "benchmarkpassword"),
+            password=os.getenv("ARCADEDB_PASSWORD", ""),
             database=os.getenv("ARCADEDB_DATABASE", "benchmark")
         )
     elif db_name in ["janusgraph", "janus", "8"]:

@@ -20,9 +20,11 @@ def get_base64_image(image_path: Path) -> str:
     return f"data:image/png;base64,{encoded}"
 
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 def build_self_contained_dashboards():
-    local_assets_dir = Path("d:/Projects/WEXA/Local Run/assets")
-    cloud_assets_dir = Path("d:/Projects/WEXA/CloudRun/assets")
+    local_assets_dir = REPO_ROOT / "Local Run" / "assets"
+    cloud_assets_dir = REPO_ROOT / "CloudRun" / "assets"
 
     local_imgs = {
         "ingest": get_base64_image(local_assets_dir / "ingestion_throughput.png"),
@@ -701,7 +703,7 @@ def build_self_contained_dashboards():
         rows.forEach(function(tr) {{
           const td = tr.children[colIdx];
           if (!td || !td.dataset.val) return;
-          const raw = td.dataset.val.replace(/[^0-9.\-]/g, '');
+          const raw = td.dataset.val.replace(/[^0-9.-]/g, '');
           const num = parseFloat(raw);
           if (isNaN(num)) return;
 
@@ -730,14 +732,13 @@ def build_self_contained_dashboards():
 </html>"""
 
     targets = [
-        "d:/Projects/WEXA/benchmark_comparison_dashboard.html",
-        "d:/Projects/WEXA/Local Run/benchmark_comparison_dashboard.html",
-        "d:/Projects/WEXA/LocalRun/benchmark_comparison_dashboard.html",
-        "d:/Projects/WEXA/CloudRun/benchmark_comparison_dashboard.html",
+        REPO_ROOT / "benchmark_comparison_dashboard.html",
+        REPO_ROOT / "Local Run" / "benchmark_comparison_dashboard.html",
+        REPO_ROOT / "CloudRun" / "benchmark_comparison_dashboard.html",
     ]
 
     for t in targets:
-        Path(t).parent.mkdir(parents=True, exist_ok=True)
+        t.parent.mkdir(parents=True, exist_ok=True)
         with open(t, "w", encoding="utf-8") as f:
             f.write(html)
         print(f"[OK] Generated: {t}")

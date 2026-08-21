@@ -56,9 +56,11 @@ def get_color(name):
             return v
     return '#64748b'
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 def load_data():
-    local_path = Path("Local Run/benchmark_results.json")
-    cloud_path = Path("CloudRun/benchmark_results.json")
+    local_path = REPO_ROOT / "Local Run" / "benchmark_results.json"
+    cloud_path = REPO_ROOT / "CloudRun" / "benchmark_results.json"
     
     with open(local_path, "r", encoding="utf-8") as f:
         local_raw = json.load(f)
@@ -1956,7 +1958,7 @@ This benchmark evaluates **8 graph database engines** under identical Pokec soci
     print(f"[OK] Generated Markdown Report: {output_path}")
 
 def main():
-    report_dir = Path("Final Report")
+    report_dir = REPO_ROOT / "Final Report"
     assets_dir = report_dir / "assets"
     
     local_data, cloud_data = load_data()
@@ -1969,7 +1971,7 @@ def main():
     generate_markdown_report(local_data, cloud_data, report_dir / "summary_tables.md")
     
     # Write standalone self-contained executive HTML dashboard to root and Final Report/
-    root_html = Path("index.html")
+    root_html = REPO_ROOT / "index.html"
     report_html = report_dir / "index.html"
     build_executive_html(local_data, cloud_data, assets_dir, root_html)
     build_executive_html(local_data, cloud_data, assets_dir, report_html)
@@ -1978,12 +1980,12 @@ def main():
     try:
         from export_pdf import export_html_to_pdf
         pdf_out = report_dir / "Wexa_AI_Graph_Database_Empirical_Benchmark_Report.pdf"
-        root_pdf = Path("Wexa_AI_Graph_Database_Empirical_Benchmark_Report.pdf")
+        root_pdf = REPO_ROOT / "Wexa_AI_Graph_Database_Empirical_Benchmark_Report.pdf"
         if export_html_to_pdf(report_html, pdf_out):
             import shutil
             shutil.copy2(pdf_out, root_pdf)
             shutil.copy2(pdf_out, report_dir / "index.pdf")
-            shutil.copy2(pdf_out, Path("index.pdf"))
+            shutil.copy2(pdf_out, REPO_ROOT / "index.pdf")
             print(f"[OK] Generated Executive PDF Report: {pdf_out}")
     except Exception as e:
         print(f"[WARN] PDF export encountered exception: {e}")

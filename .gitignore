@@ -1,8 +1,14 @@
 # Environment variables & credentials (NEVER COMMIT SECRETS)
 .env
+.env.*
+.env*.local
 *.env
 *.pem
+*.key
+*.cert
+*.crt
 credentials.txt
+!*.example
 
 # Python cache & virtual environments
 __pycache__/
@@ -11,17 +17,32 @@ __pycache__/
 .venv/
 venv/
 env/
+ENV/
 .pytest_cache/
+.coverage
+htmlcov/
 
-# Raw benchmark data & large datasets
+# Raw benchmark data & temporary artifacts
 data/*.txt
-data/*.csv
 data/*.gz
 data/*.tar.gz
 data/raw/
 kuzu_db/
 *.db
+*.sqlite
+*.sqlite3
 
-# OS files
+# OS & Editor files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+
+# Graphify AST intermediate cache & machine-specific logs
+graphify-out/cache/
+graphify-out/.graphify_ast.json
+graphify-out/.graphify_detect.json
+graphify-out/.graphify_extract.json
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+graphify-out/.graphify_semantic.json

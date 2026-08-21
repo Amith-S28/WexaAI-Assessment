@@ -124,4 +124,5 @@ def run_pipeline(root_path: Path):
     print(f"  - GraphRAG JSON: {out_dir / 'graph.json'}")
 
 if __name__ == "__main__":
-    run_pipeline(Path("d:/Projects/WEXA"))
+    repo_root = Path(__file__).resolve().parent.parent
+    run_pipeline(repo_root)

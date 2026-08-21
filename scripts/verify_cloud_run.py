@@ -6,8 +6,10 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 def main():
-    p = Path("d:/Projects/WEXA/CloudRun/results/benchmark_results.json")
+    p = REPO_ROOT / "CloudRun" / "results" / "benchmark_results.json"
     with open(p, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -95,7 +97,7 @@ def main():
                 print(f"    ✓ Concurrency [{ck:2} Workers]: QPS={qps:5.2f} | p50={p50:7.2f}ms | p95={p95:7.2f}ms | (Success: {succ:4}, Fail: {fail})")
 
     # Check Assets
-    assets_dir = Path("d:/Projects/WEXA/CloudRun/assets")
+    assets_dir = REPO_ROOT / "CloudRun" / "assets"
     expected_assets = [
         "architectural_tradeoff_quadrant.png",
         "cold_vs_warm_latency.png",

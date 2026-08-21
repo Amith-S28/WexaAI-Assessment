@@ -32,8 +32,9 @@ from benchmarks.report_generator import ReportGenerator
 console = Console(force_terminal=True, legacy_windows=False)
 load_dotenv()
 
-RESULTS_DIR = Path("d:/Projects/WEXA/results")
-ASSETS_DIR = Path("d:/Projects/WEXA/assets")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+RESULTS_DIR = REPO_ROOT / "results"
+ASSETS_DIR = REPO_ROOT / "assets"
 
 class BenchmarkOrchestrator:
     """Master orchestrator for running multi-database cloud/local benchmarks."""
@@ -106,7 +107,7 @@ class BenchmarkOrchestrator:
             adapters.append(ArcadeDBAdapter(
                 url=os.getenv("ARCADEDB_URL", "http://localhost:2480"),
                 user=os.getenv("ARCADEDB_USER", "root"),
-                password=os.getenv("ARCADEDB_PASSWORD", "benchmarkpassword"),
+                password=os.getenv("ARCADEDB_PASSWORD", ""),
                 database=os.getenv("ARCADEDB_DATABASE", "benchmark")
             ))
         if "janusgraph" in self.selected_dbs:

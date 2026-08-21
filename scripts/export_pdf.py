@@ -11,12 +11,23 @@ import subprocess
 from pathlib import Path
 
 POSSIBLE_BROWSER_PATHS = [
+    os.getenv("CHROME_PATH", ""),
+    os.getenv("BROWSER_PATH", ""),
+    # Windows
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
     r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
-    shutil.which("chrome") or "",
+    # macOS
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    # Linux & PATH-based
+    shutil.which("google-chrome-stable") or "",
     shutil.which("google-chrome") or "",
+    shutil.which("chromium") or "",
+    shutil.which("chromium-browser") or "",
+    shutil.which("chrome") or "",
     shutil.which("msedge") or "",
     shutil.which("edge") or "",
 ]

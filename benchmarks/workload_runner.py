@@ -19,7 +19,8 @@ from .adapters.base import BaseGraphAdapter
 
 console = Console(force_terminal=True, legacy_windows=False)
 
-DATA_DIR = Path("d:/Projects/WEXA/data")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO_ROOT / "data"
 NODES_CSV = DATA_DIR / "nodes.csv"
 EDGES_CSV = DATA_DIR / "edges.csv"
 

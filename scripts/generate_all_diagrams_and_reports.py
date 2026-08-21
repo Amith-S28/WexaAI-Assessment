@@ -383,12 +383,15 @@ class MasterReportGenerator:
             f.write(md_text)
 
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
 def run():
     print("Loading CloudRun and LocalRun datasets...")
-    with open("CloudRun/benchmark_results.json", "r", encoding="utf-8") as f:
+    with open(REPO_ROOT / "CloudRun" / "benchmark_results.json", "r", encoding="utf-8") as f:
         cloud_raw = json.load(f)
         
-    with open("Local Run/benchmark_results.json", "r", encoding="utf-8") as f:
+    with open(REPO_ROOT / "Local Run" / "benchmark_results.json", "r", encoding="utf-8") as f:
         local_raw = json.load(f)
         
     local_clean = {}
@@ -404,38 +407,32 @@ def run():
         if k_clean != "CognoDB Cloud":
             local_clean[k_clean] = v
             
-    with open("Local Run/benchmark_results.json", "w", encoding="utf-8") as f:
+    with open(REPO_ROOT / "Local Run" / "benchmark_results.json", "w", encoding="utf-8") as f:
         json.dump(local_clean, f, indent=2)
-    with open("LocalRun/benchmark_results.json", "w", encoding="utf-8") as f:
-        json.dump(local_clean, f, indent=2)
-    with open("results/benchmark_results.json", "w", encoding="utf-8") as f:
+    with open(REPO_ROOT / "results" / "benchmark_results.json", "w", encoding="utf-8") as f:
         json.dump(local_clean, f, indent=2)
         
     print(f"Merged Local Run contains {len(local_clean)} databases: {list(local_clean.keys())}")
     
     print("Generating visual diagrams for Local Run (8 Databases)...")
-    gen_local = MasterReportGenerator(local_clean, Path("Local Run/assets"), title_suffix="(Local 0.50 vCPU / 512MB RAM + CognoDB Cloud)")
+    gen_local = MasterReportGenerator(local_clean, REPO_ROOT / "Local Run" / "assets", title_suffix="(Local 0.50 vCPU / 512MB RAM + CognoDB Cloud)")
     gen_local.generate_all()
-    gen_local_root = MasterReportGenerator(local_clean, Path("assets"), title_suffix="(Local Capped Benchmark Suite)")
+    gen_local_root = MasterReportGenerator(local_clean, REPO_ROOT / "assets", title_suffix="(Local Capped Benchmark Suite)")
     gen_local_root.generate_all()
-    gen_local_dup = MasterReportGenerator(local_clean, Path("LocalRun/assets"), title_suffix="(Local 0.50 vCPU / 512MB RAM + CognoDB Cloud)")
-    gen_local_dup.generate_all()
     
-    with open("Local Run/assets/summary_tables.md", "r", encoding="utf-8") as f:
+    with open(REPO_ROOT / "Local Run" / "assets" / "summary_tables.md", "r", encoding="utf-8") as f:
         md_text = f.read()
-    with open("Local Run/summary_tables.md", "w", encoding="utf-8") as f:
+    with open(REPO_ROOT / "Local Run" / "summary_tables.md", "w", encoding="utf-8") as f:
         f.write(md_text)
-    with open("LocalRun/summary_tables.md", "w", encoding="utf-8") as f:
-        f.write(md_text)
-    with open("results/summary_tables.md", "w", encoding="utf-8") as f:
+    with open(REPO_ROOT / "results" / "summary_tables.md", "w", encoding="utf-8") as f:
         f.write(md_text)
 
     print("Generating visual diagrams for Cloud Run (5 Cloud Databases)...")
-    gen_cloud = MasterReportGenerator(cloud_raw, Path("CloudRun/assets"), title_suffix="(Cloud Baseline c0 / Managed Tiers)")
+    gen_cloud = MasterReportGenerator(cloud_raw, REPO_ROOT / "CloudRun" / "assets", title_suffix="(Cloud Baseline c0 / Managed Tiers)")
     gen_cloud.generate_all()
-    with open("CloudRun/assets/summary_tables.md", "r", encoding="utf-8") as f:
+    with open(REPO_ROOT / "CloudRun" / "assets" / "summary_tables.md", "r", encoding="utf-8") as f:
         md_cloud = f.read()
-    with open("CloudRun/summary_tables.md", "w", encoding="utf-8") as f:
+    with open(REPO_ROOT / "CloudRun" / "summary_tables.md", "w", encoding="utf-8") as f:
         f.write(md_cloud)
 
     print("All diagrams, telemetry JSONs, and summary tables successfully compiled!")

@@ -7,11 +7,13 @@ interactive KPI cards, comparison tables, and architectural insights.
 import json
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 def generate_dashboard():
-    with open("Local Run/benchmark_results.json", "r", encoding="utf-8") as f:
+    with open(REPO_ROOT / "Local Run" / "benchmark_results.json", "r", encoding="utf-8") as f:
         local_data = json.load(f)
         
-    with open("CloudRun/benchmark_results.json", "r", encoding="utf-8") as f:
+    with open(REPO_ROOT / "CloudRun" / "benchmark_results.json", "r", encoding="utf-8") as f:
         cloud_data = json.load(f)
 
     html_content = f"""<!DOCTYPE html>
@@ -704,10 +706,11 @@ def generate_dashboard():
 """
     
     for dest in [
-        "d:/Projects/WEXA/benchmark_comparison_dashboard.html",
-        "d:/Projects/WEXA/Local Run/benchmark_comparison_dashboard.html",
-        "d:/Projects/WEXA/CloudRun/benchmark_comparison_dashboard.html"
+        REPO_ROOT / "benchmark_comparison_dashboard.html",
+        REPO_ROOT / "Local Run" / "benchmark_comparison_dashboard.html",
+        REPO_ROOT / "CloudRun" / "benchmark_comparison_dashboard.html"
     ]:
+        dest.parent.mkdir(parents=True, exist_ok=True)
         with open(dest, "w", encoding="utf-8") as f:
             f.write(html_content)
         print(f"Generated dashboard: {dest}")

@@ -12,7 +12,7 @@ from .base import BaseGraphAdapter
 class ArcadeDBAdapter(BaseGraphAdapter):
     """Adapter for ArcadeDB multi-model graph engine."""
     
-    def __init__(self, url: str = "http://localhost:2480", user: str = "root", password: str = "benchmarkpassword", database: str = "benchmark"):
+    def __init__(self, url: str = "http://localhost:2480", user: str = "root", password: str = "", database: str = "benchmark"):
         super().__init__(
             name="ArcadeDB",
             db_type="ArcadeDB (Multi-Model)",
@@ -22,7 +22,7 @@ class ArcadeDBAdapter(BaseGraphAdapter):
         self.user = user
         self.password = password
         self.database = database
-        self.auth = HTTPBasicAuth(user, password)
+        self.auth = HTTPBasicAuth(user, password) if (user or password) else None
         self.session = requests.Session()
 
     def _command(self, query: str, language: str = "cypher", timeout: int = 30) -> Dict[str, Any]:

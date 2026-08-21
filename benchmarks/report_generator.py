@@ -6,7 +6,7 @@ Generates publication-quality charts and Markdown summary tables for the benchma
 import os
 import json
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -26,12 +26,15 @@ PALETTE = {
     "ArangoDB Oasis": "#10B981"    # Emerald
 }
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_ASSETS_DIR = REPO_ROOT / "assets"
+
 class ReportGenerator:
     """Renders charts and compiles Markdown report tables."""
     
-    def __init__(self, results_data: Dict[str, Any], output_dir: Path = Path("d:/Projects/WEXA/assets")):
+    def __init__(self, results_data: Dict[str, Any], output_dir: Optional[Path] = None):
         self.data = results_data
-        self.output_dir = output_dir
+        self.output_dir = Path(output_dir) if output_dir else DEFAULT_ASSETS_DIR
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.db_names = list(self.data.keys())
 
