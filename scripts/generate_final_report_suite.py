@@ -1014,6 +1014,45 @@ def build_executive_html(local_data, cloud_data, assets_dir: Path, output_path: 
       padding-bottom: 2rem;
     }}
 
+    .header-top {{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }}
+
+    .header-actions {{
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }}
+
+    .export-btn {{
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--primary);
+      color: #ffffff;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(79, 70, 229, 0.25);
+      transition: all 0.2s ease;
+    }}
+    .export-btn:hover {{
+      background: #4338ca;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+      transform: translateY(-1px);
+    }}
+    .export-btn svg {{
+      flex-shrink: 0;
+    }}
+
     .eyebrow {{
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.82rem;
@@ -1196,6 +1235,128 @@ def build_executive_html(local_data, cloud_data, assets_dir: Path, output_path: 
       .diagram-grid {{ grid-template-columns: 1fr; }}
       h1 {{ font-size: 2.1rem; }}
     }}
+
+    /* Exhaustive Publication-Grade Print / PDF Stylesheet */
+    @media print {{
+      @page {{
+        size: A4 portrait;
+        margin: 12mm 14mm 14mm 14mm;
+      }}
+      body {{
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }}
+      .container {{
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }}
+      .view-switcher, .lightbox-overlay, .legend-strip, .no-print, .header-actions {{
+        display: none !important;
+      }}
+      .hidden {{
+        display: block !important;
+      }}
+      #unified-view, #local-view, #cloud-view, #compare-view {{
+        display: block !important;
+      }}
+      header {{
+        margin-bottom: 2rem !important;
+        padding-bottom: 1.5rem !important;
+        border-bottom: 2px solid #cbd5e1 !important;
+      }}
+      h1 {{
+        font-size: 2.4rem !important;
+      }}
+      .section-title {{
+        page-break-before: always !important;
+        break-before: page !important;
+        margin: 2.2rem 0 1.25rem !important;
+        padding-top: 0.5rem !important;
+        font-size: 1.75rem !important;
+        border-bottom: 2px solid #cbd5e1 !important;
+      }}
+      #unified-view .section-title {{
+        page-break-before: auto !important;
+        break-before: auto !important;
+      }}
+      .kpi-grid {{
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+        margin-bottom: 2rem !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }}
+      .kpi-card {{
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 1rem 1.25rem !important;
+        box-shadow: none !important;
+        background: #f8fafc !important;
+      }}
+      .diagram-grid {{
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.25rem !important;
+        margin-bottom: 2rem !important;
+      }}
+      .diagram-card {{
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+        margin-bottom: 0 !important;
+      }}
+      .diagram-card-full {{
+        grid-column: 1 / -1 !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }}
+      .diagram-card-header {{
+        padding: 0.75rem 1rem !important;
+        background: #f8fafc !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+      }}
+      .diagram-title {{
+        font-size: 0.95rem !important;
+      }}
+      .diagram-desc {{
+        font-size: 0.8rem !important;
+      }}
+      .diagram-card-body {{
+        padding: 0.75rem !important;
+      }}
+      .diagram-img {{
+        max-height: 420px !important;
+        width: 100% !important;
+        object-fit: contain !important;
+      }}
+      .table-container {{
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+        margin-top: 1rem !important;
+        margin-bottom: 2rem !important;
+      }}
+      table {{
+        font-size: 0.78rem !important;
+        width: 100% !important;
+      }}
+      th {{
+        padding: 0.6rem 0.7rem !important;
+        font-size: 0.7rem !important;
+        background: #f1f5f9 !important;
+      }}
+      td {{
+        padding: 0.6rem 0.7rem !important;
+      }}
+    }}
   </style>
 </head>
 <body>
@@ -1207,8 +1368,22 @@ def build_executive_html(local_data, cloud_data, assets_dir: Path, output_path: 
 
   <div class="container">
     <header>
-      <div class="eyebrow">Wexa AI Graph Performance Engineering</div>
-      <h1>Graph Database Benchmark &amp; Architectural Synthesis</h1>
+      <div class="header-top">
+        <div>
+          <div class="eyebrow">Wexa AI Graph Performance Engineering</div>
+          <h1>Graph Database Benchmark &amp; Architectural Synthesis</h1>
+        </div>
+        <div class="header-actions no-print">
+          <button class="export-btn" onclick="window.print()" title="Export complete multi-page PDF report with all 29 diagrams and benchmark tables">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            Export PDF Report
+          </button>
+        </div>
+      </div>
       <p class="subtitle">
         Empirical evaluation comparing <strong>CognoDB Cloud</strong> against 7 local &amp; managed graph engines
         across Pokec topology ingestion, sub-millisecond multi-hop pointer traversals, 100-run jitter distributions, and 40-worker concurrency saturation.
@@ -1777,8 +1952,25 @@ def main():
     generate_markdown_report(local_data, cloud_data, report_dir / "summary_tables.md")
     
     # Write standalone self-contained executive HTML dashboard to root and Final Report/
-    build_executive_html(local_data, cloud_data, assets_dir, Path("index.html"))
-    build_executive_html(local_data, cloud_data, assets_dir, report_dir / "index.html")
+    root_html = Path("index.html")
+    report_html = report_dir / "index.html"
+    build_executive_html(local_data, cloud_data, assets_dir, root_html)
+    build_executive_html(local_data, cloud_data, assets_dir, report_html)
+
+    # Export complete publication-grade PDF report
+    try:
+        from export_pdf import export_html_to_pdf
+        pdf_out = report_dir / "Wexa_AI_Graph_Database_Empirical_Benchmark_Report.pdf"
+        root_pdf = Path("Wexa_AI_Graph_Database_Empirical_Benchmark_Report.pdf")
+        if export_html_to_pdf(report_html, pdf_out):
+            import shutil
+            shutil.copy2(pdf_out, root_pdf)
+            shutil.copy2(pdf_out, report_dir / "index.pdf")
+            shutil.copy2(pdf_out, Path("index.pdf"))
+            print(f"[OK] Generated Executive PDF Report: {pdf_out}")
+    except Exception as e:
+        print(f"[WARN] PDF export encountered exception: {e}")
 
 if __name__ == "__main__":
     main()
+
