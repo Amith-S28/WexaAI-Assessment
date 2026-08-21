@@ -44,3 +44,20 @@ This benchmark evaluates **8 graph database engines** under identical Pokec soci
 | **Memgraph Cloud** | Managed Cloud Tier | 252.21 ms | 515.97 ms | **3,279.2 n/s** | 1,694.1 e/s | **260.03 ms** | 262.10 ms | 35.37 QPS | 359.07 ms |
 | **FalkorDB Cloud** | Managed Redis/GraphBLAS | 264.67 ms | **470.96 ms** | 1,282.6 n/s | **3,940.4 e/s** | 261.28 ms | 274.67 ms | 59.00 QPS | 557.93 ms |
 | **ArangoDB Oasis** | Managed Oasis Multi-Model | 258.67 ms | 543.92 ms | 2,001.2 n/s | 3,000.9 e/s | 265.35 ms | **225.63 ms** | **68.68 QPS** | 510.46 ms |
+
+---
+
+### 3. System Environment, Runtime Configurations & Specifications
+
+| Component | Specification | Details / Configuration |
+| :--- | :--- | :--- |
+| **Operating System** | **Microsoft Windows 11 Home** | 64-bit Architecture (`x86_64` / `AMD64`) |
+| **OS Version & Build** | **Windows 11 Version 25H2** | Build: `26200.9168` (CurrentBuild: `26200`, UBR: `9168`) |
+| **Processor (CPU)** | **AMD Ryzen 7 5800H with Radeon Graphics** | 8 Cores, 16 Threads @ 3.20 GHz (Max Boost: 4.40 GHz) |
+| **System Memory (RAM)** | **16.0 GB DDR4 (2 × 8GB Dual-Channel)** | Samsung DDR4-3200 MHz (`ConfiguredClockSpeed: 3200 MT/s`) |
+| **Graphics (GPU)** | **AMD Radeon RX 6600M (8 GB GDDR6)** | Driver: `32.0.21045.1000` + Integrated Radeon Graphics |
+| **Storage Subsystem** | **PCIe NVMe SSD** | High-IOPS NTFS Local Testbed Partition |
+| **Container Engine** | **Docker Engine v29.7.2 (build a7dcaa6)** | Docker Compose `v5.4.0` via WSL2 Linux Backend |
+| **Container Limits** | **`0.50 vCPU`, `512 MB RAM` per engine** | Enforced via cgroup resource constraints |
+| **Python Environment** | **Python 3.14.0 (64-bit AMD64)** | Virtual environment with `neo4j 6.2.0`, `FalkorDB 1.7.1`, `python-arango 8.3.3` |
+| **Target Dataset** | **Stanford SNAP Pokec Social Network** | 1,632,803 vertices, 30,622,564 directed edges |
