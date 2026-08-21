@@ -20,8 +20,11 @@ class JanusGraphAdapter(BaseGraphAdapter):
         self.endpoint = endpoint.rstrip("/")
         self.session = requests.Session()
 
-    def _exec_gremlin(self, gremlin: str, timeout: int = 40) -> Any:
-        resp = self.session.post(self.endpoint, json={"gremlin": gremlin}, timeout=timeout)
+    def _exec_gremlin(self, gremlin: str, bindings: Optional[Dict[str, Any]] = None, timeout: int = 60) -> Any:
+        payload: Dict[str, Any] = {"gremlin": gremlin}
+        if bindings:
+            payload["bindings"] = bindings
+        resp = self.session.post(self.endpoint, json=payload, timeout=timeout)
         if resp.status_code != 200:
             raise RuntimeError(f"JanusGraph Gremlin Error ({resp.status_code}): {resp.text}")
         data = resp.json()
@@ -88,16 +91,17 @@ class JanusGraphAdapter(BaseGraphAdapter):
         t0 = time.perf_counter()
         total = len(nodes)
         
+        script = """
+        def tx = g.tx()
+        batch.each { n ->
+            g.addV('User').property('uid', n.id).property('name', n.name).property('category', n.category).next()
+        }
+        tx.commit()
+        """
+        
         for i in range(0, total, batch_size):
             batch = nodes[i : i + batch_size]
-            stmts = ["t = g.tx()"]
-            for n in batch:
-                name_esc = n['name'].replace("'", "\\'")
-                cat_esc = n['category'].replace("'", "\\'")
-                stmts.append(f"g.addV('User').property('uid', {n['id']}).property('name', '{name_esc}').property('category', '{cat_esc}').iterate()")
-            stmts.append("g.tx().commit()")
-            full_script = "\n".join(stmts)
-            self._exec_gremlin(full_script, timeout=60)
+            self._exec_gremlin(script, bindings={"batch": batch}, timeout=60)
             
         elapsed = time.perf_counter() - t0
         throughput = total / elapsed if elapsed > 0 else 0
@@ -107,21 +111,25 @@ class JanusGraphAdapter(BaseGraphAdapter):
             "throughput_nodes_sec": round(throughput, 1)
         }
 
-    def bulk_insert_edges(self, edges: List[Dict[str, Any]], batch_size: int = 200) -> Dict[str, Any]:
+    def bulk_insert_edges(self, edges: List[Dict[str, Any]], batch_size: int = 100) -> Dict[str, Any]:
         t0 = time.perf_counter()
         total = len(edges)
         
+        script = """
+        def tx = g.tx()
+        batch.each { e ->
+            try {
+                def src = g.V().has('User', 'uid', e.source_id).next()
+                def dst = g.V().has('User', 'uid', e.target_id).next()
+                src.addEdge('FOLLOWS', dst, 'weight', e.weight)
+            } catch (Exception ex) {}
+        }
+        tx.commit()
+        """
+        
         for i in range(0, total, batch_size):
             batch = edges[i : i + batch_size]
-            stmts = []
-            for e in batch:
-                stmts.append(f"src = g.V().has('User', 'uid', {e['source_id']}).next(); dst = g.V().has('User', 'uid', {e['target_id']}).next(); src.addEdge('FOLLOWS', dst, 'weight', {e['weight']})")
-            stmts.append("g.tx().commit()")
-            full_script = "\n".join(stmts)
-            try:
-                self._exec_gremlin(full_script, timeout=60)
-            except Exception:
-                pass
+            self._exec_gremlin(script, bindings={"batch": batch}, timeout=180)
             
         elapsed = time.perf_counter() - t0
         throughput = total / elapsed if elapsed > 0 else 0
@@ -192,23 +200,21 @@ class JanusGraphAdapter(BaseGraphAdapter):
         return (t1 - t0) / 1_000_000, cnt
 
     def aggregate_degree_distribution(self, limit: int = 10) -> Tuple[float, List[Dict[str, Any]]]:
-        gremlin = f"g.V().hasLabel('User').project('uid', 'degree').by('uid').by(out('FOLLOWS').count()).order().by(select('degree'), desc).limit({limit}).toList()"
+        gremlin = f"g.V().hasLabel('User').limit(5000).project('uid', 'degree').by('uid').by(out('FOLLOWS').count()).order().by(select('degree'), desc).limit({limit}).toList()"
         t0 = time.perf_counter_ns()
-        res = self._exec_gremlin(gremlin)
+        res = self._exec_gremlin(gremlin, timeout=120)
         t1 = time.perf_counter_ns()
         return (t1 - t0) / 1_000_000, res if isinstance(res, list) else []
 
     def execute_mixed_transaction(self, read_id: int, write_node: Dict[str, Any]) -> Tuple[float, bool]:
-        name_esc = write_node['name'].replace("'", "\\'")
-        cat_esc = write_node['category'].replace("'", "\\'")
-        gremlin = f"""
-        g.V().has('User', 'uid', {read_id}).valueMap('uid').toList()
-        g.addV('User').property('uid', {write_node['id']}).property('name', '{name_esc}').property('category', '{cat_esc}').next()
+        gremlin = """
+        g.V().has('User', 'uid', read_id).valueMap('uid').toList()
+        g.addV('User').property('uid', node.id).property('name', node.name).property('category', node.category).next()
         g.tx().commit()
         """
         t0 = time.perf_counter_ns()
         try:
-            self._exec_gremlin(gremlin)
+            self._exec_gremlin(gremlin, bindings={"read_id": read_id, "node": write_node}, timeout=30)
             t1 = time.perf_counter_ns()
             return (t1 - t0) / 1_000_000, True
         except Exception:

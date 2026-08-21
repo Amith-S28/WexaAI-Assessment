@@ -103,7 +103,8 @@ services:
     container_name: wexa-arcadedb-local
     restart: unless-stopped
     environment:
-      - JAVA_OPTS=-Darcadedb.server.rootPassword=benchmarkpassword -Xms256m -Xmx400m
+      - JAVA_TOOL_OPTIONS=-Xms128m -Xmx320m -XX:+UseG1GC
+      - JAVA_OPTS=-Darcadedb.server.rootPassword=benchmarkpassword -Xms128m -Xmx320m -XX:+UseG1GC
     ports:
       - "2480:2480"
     deploy:
@@ -122,9 +123,12 @@ services:
     container_name: wexa-janusgraph-local
     restart: unless-stopped
     environment:
-      - JANUS_PROPS_template_storage_backend=inmemory
+      - JANUS_PROPS_template_storage_backend=berkeleyje
+      - JANUS_PROPS_template_storage_directory=/var/lib/janusgraph/data
       - gremlinserver.channelizer=org.apache.tinkerpop.gremlin.server.channel.WsAndHttpChannelizer
-      - JAVA_OPTIONS=-Xms256m -Xmx400m
+      - gremlinserver.maxContentLength=10485760
+      - gremlinserver.evaluationTimeout=180000
+      - JAVA_OPTIONS=-Xms128m -Xmx320m -XX:+UseG1GC
     ports:
       - "8182:8182"
     deploy:

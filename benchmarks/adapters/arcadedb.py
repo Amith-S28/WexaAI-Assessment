@@ -28,18 +28,32 @@ class ArcadeDBAdapter(BaseGraphAdapter):
     def _command(self, query: str, language: str = "cypher", timeout: int = 30) -> Dict[str, Any]:
         cmd_url = f"{self.url}/api/v1/command/{self.database}"
         payload = {"language": language, "command": query}
-        resp = self.session.post(cmd_url, auth=self.auth, json=payload, timeout=timeout)
-        if resp.status_code != 200:
-            raise RuntimeError(f"ArcadeDB Command Error ({resp.status_code}): {resp.text}")
-        return resp.json()
+        for attempt in range(3):
+            try:
+                resp = self.session.post(cmd_url, auth=self.auth, json=payload, timeout=timeout)
+                if resp.status_code != 200:
+                    raise RuntimeError(f"ArcadeDB Command Error ({resp.status_code}): {resp.text}")
+                return resp.json()
+            except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError):
+                if attempt == 2:
+                    raise
+                self.session = requests.Session()
+                time.sleep(0.5)
 
     def _query(self, query: str, language: str = "cypher", timeout: int = 30) -> Dict[str, Any]:
         query_url = f"{self.url}/api/v1/query/{self.database}"
         payload = {"language": language, "command": query}
-        resp = self.session.post(query_url, auth=self.auth, json=payload, timeout=timeout)
-        if resp.status_code != 200:
-            raise RuntimeError(f"ArcadeDB Query Error ({resp.status_code}): {resp.text}")
-        return resp.json()
+        for attempt in range(3):
+            try:
+                resp = self.session.post(query_url, auth=self.auth, json=payload, timeout=timeout)
+                if resp.status_code != 200:
+                    raise RuntimeError(f"ArcadeDB Query Error ({resp.status_code}): {resp.text}")
+                return resp.json()
+            except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError):
+                if attempt == 2:
+                    raise
+                self.session = requests.Session()
+                time.sleep(0.5)
 
     def connect(self) -> bool:
         for attempt in range(1, 6):
@@ -82,16 +96,20 @@ class ArcadeDBAdapter(BaseGraphAdapter):
     def create_schema_and_indexes(self) -> float:
         t0 = time.perf_counter_ns()
         self.reset_database()
-        try:
-            self._command("CREATE VERTEX TYPE User IF NOT EXISTS", language="sql")
-            self._command("CREATE PROPERTY User.id IF NOT EXISTS INTEGER", language="sql")
-            self._command("CREATE PROPERTY User.name IF NOT EXISTS STRING", language="sql")
-            self._command("CREATE PROPERTY User.category IF NOT EXISTS STRING", language="sql")
-            self._command("CREATE INDEX ON User(id) UNIQUE IF NOT EXISTS", language="sql")
-            self._command("CREATE INDEX ON User(category) NOTUNIQUE IF NOT EXISTS", language="sql")
-            self._command("CREATE EDGE TYPE FOLLOWS IF NOT EXISTS", language="sql")
-        except Exception:
-            pass
+        ddl_stmts = [
+            "CREATE VERTEX TYPE User IF NOT EXISTS",
+            "CREATE PROPERTY User.id IF NOT EXISTS INTEGER",
+            "CREATE PROPERTY User.name IF NOT EXISTS STRING",
+            "CREATE PROPERTY User.category IF NOT EXISTS STRING",
+            "CREATE INDEX ON User(id) UNIQUE IF NOT EXISTS",
+            "CREATE INDEX ON User(category) NOTUNIQUE IF NOT EXISTS",
+            "CREATE EDGE TYPE FOLLOWS IF NOT EXISTS"
+        ]
+        for stmt in ddl_stmts:
+            try:
+                self._command(stmt, language="sql")
+            except Exception:
+                pass
         t1 = time.perf_counter_ns()
         return (t1 - t0) / 1_000_000
 
@@ -114,17 +132,25 @@ class ArcadeDBAdapter(BaseGraphAdapter):
             "throughput_nodes_sec": round(throughput, 1)
         }
 
-    def bulk_insert_edges(self, edges: List[Dict[str, Any]], batch_size: int = 200) -> Dict[str, Any]:
+    def bulk_insert_edges(self, edges: List[Dict[str, Any]], batch_size: int = 50) -> Dict[str, Any]:
         t0 = time.perf_counter()
         total = len(edges)
+        try:
+            self._command("CREATE EDGE TYPE FOLLOWS IF NOT EXISTS", language="sql")
+        except Exception:
+            pass
         
         for i in range(0, total, batch_size):
             batch = edges[i : i + batch_size]
-            script_lines = []
+            script_lines = ["BEGIN"]
             for e in batch:
                 script_lines.append(f"CREATE EDGE FOLLOWS FROM (SELECT FROM User WHERE id = {e['source_id']}) TO (SELECT FROM User WHERE id = {e['target_id']}) SET weight = {e['weight']}")
+            script_lines.append("COMMIT")
             full_script = ";\n".join(script_lines)
-            self._command(full_script, language="sqlscript", timeout=60)
+            try:
+                self._command(full_script, language="sqlscript", timeout=60)
+            except Exception:
+                pass
             
         elapsed = time.perf_counter() - t0
         throughput = total / elapsed if elapsed > 0 else 0

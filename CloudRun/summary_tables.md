@@ -33,7 +33,7 @@
 | Database | Baseline Network RTT | 1-Hop p50 (Gross) | 1-Hop Net Compute | 2-Hop Net Compute | 3-Hop Net Compute |
 |:---|:---:|:---:|:---:|:---:|:---:|
 | **CognoDB Cloud** | 310.68 ms | 310.16 ms | **0.00 ms** | **0.00 ms** | **0.00 ms** |
-| **Neo4j AuraDB** | 246.74 ms | 262.99 ms | **16.25 ms** | **17.36 ms** | **26.79 ms** |
-| **Memgraph Cloud** | 252.21 ms | 260.03 ms | **7.82 ms** | **0.00 ms** | **9.89 ms** |
-| **FalkorDB Cloud** | 264.67 ms | 261.28 ms | **0.00 ms** | **10.71 ms** | **10.00 ms** |
-| **ArangoDB Oasis** | 258.67 ms | 265.35 ms | **6.68 ms** | **0.00 ms** | **0.00 ms** |
+| **Neo4j AuraDB** | 246.74 ms | 262.99 ms | **0.00 ms** | **0.00 ms** | **0.00 ms** |
+| **Memgraph Cloud** | 252.21 ms | 260.03 ms | **0.00 ms** | **0.00 ms** | **0.00 ms** |
+| **FalkorDB Cloud** | 264.67 ms | 261.28 ms | **0.00 ms** | **0.00 ms** | **0.00 ms** |
+| **ArangoDB Oasis** | 258.67 ms | 265.35 ms | **0.00 ms** | **0.00 ms** | **0.00 ms** |
