@@ -1,211 +1,147 @@
-# Graph Database Cloud Benchmark: CognoDB Cloud vs. The Ecosystem
+# Wexa AI Graph Database Empirical Benchmark Suite
 
-[![Benchmark Status](https://img.shields.io/badge/Benchmark-100%25%20Verified-brightgreen.svg?style=flat-square)]()
-[![Dataset](https://img.shields.io/badge/Dataset-SNAP%20Pokec%20350K-blue.svg?style=flat-square)]()
-[![Cloud Region](https://img.shields.io/badge/Region-US%20East%20(100%25%20Parity)-orange.svg?style=flat-square)]()
-[![Protocols](https://img.shields.io/badge/Protocols-Bolt%20%7C%20GraphBLAS%20%7C%20AQL-purple.svg?style=flat-square)]()
-
-An empirical, reproducible systems performance benchmark comparing **Wexa AI's CognoDB Cloud** against the leading graph database engines in the cloud: **Neo4j AuraDB**, **Memgraph Cloud**, **FalkorDB Cloud**, and **ArangoDB Oasis Cloud**.
+An empirical systems performance evaluation comparing **CognoDB Cloud** against open-source and managed graph database engines: **FalkorDB**, **Memgraph**, **Neo4j 5**, **ArangoDB**, **KùzuDB**, **JanusGraph**, and **ArcadeDB**.
 
 ---
 
-## 🏗️ Architecture & Philosophy Comparison
+## Executive Report & Key Artifacts
 
-| Database | Architecture Paradigm | Storage Backend | Traversal Model | Wire Protocol |
+The complete analytical synthesis, high-resolution infographics, and interactive dashboards are located in the [`Final Report/`](./Final%20Report/) directory:
+
+- **Executive Whitepaper:** [`Final Report/FINAL_REPORT.md`](./Final%20Report/FINAL_REPORT.md)
+- **Interactive Executive Dashboard:** [`Final Report/index.html`](./Final%20Report/index.html) *(Self-contained, with zoomable lightbox and RTT normalization)*
+- **Publication-Grade Infographics:** [`Final Report/assets/`](./Final%20Report/assets/)
+- **Consolidated Summary Tables:** [`Final Report/summary_tables.md`](./Final%20Report/summary_tables.md)
+
+---
+
+## Architectural Taxonomy
+
+| Engine | Storage Backend | Computational Paradigm | Traversal Model | Primary Interface |
 | :--- | :--- | :--- | :--- | :--- |
-| **CognoDB Cloud (`c0`)** | Cloud-Managed Native Graph | Memory-Mapped Pointer Graph | Direct Pointer Chasing | **Bolt Protocol** (`bolt+s://`) |
-| **Neo4j AuraDB** | JVM Labeled Property Graph | Node/Rel Record Store + Cache | Doubly-Linked Relationship Chains | **Bolt Protocol** (`neo4j+s://`) |
-| **Memgraph Cloud** | In-Memory Native C++ Graph | In-Memory Adjacency Pointers | High-Speed In-Memory Traversal | **Bolt Protocol** (`bolt+ssc://`) |
-| **FalkorDB Cloud** | GraphBLAS Linear Algebra | Sparse Adjacency Matrices | Matrix-Vector Multiplications ($C \times A$) | **Redis Protocol** (Port `54106`) |
-| **ArangoDB Oasis** | Multi-Model Document + Edge Graph | RocksDB LSM-Tree Engine | Secondary Index Edge Iteration | **HTTP / AQL** (Port `8529`) |
+| **CognoDB Cloud** | Distributed Native Graph Store | Cloud Native Managed Engine | Direct Pointer Chasing | Bolt Protocol (`bolt+s://`) |
+| **FalkorDB** | Redis In-Memory Module | GraphBLAS Sparse Linear Algebra | Matrix Multiplications ($A \times A$) | Redis Protocol / openCypher |
+| **Memgraph** | In-Memory C++ Adjacency | Direct Native Pointer Chasing | Unindexed Memory Dereferencing | Bolt Protocol / openCypher |
+| **Neo4j 5** | Record Store + Page Cache | JVM Labeled Property Graph | Doubly-Linked Relationship Chains | Bolt Protocol / Cypher |
+| **ArangoDB** | RocksDB LSM-Tree Engine | Multi-Model Document + Edge Graph | Index-Backed Edge Iteration | HTTP REST / AQL |
+| **KùzuDB** | Columnar On-Disk / Memory | In-Process Columnar Graph Engine | Vectorized Columnar Scanning | Embedded C++ / Python / Cypher |
+| **JanusGraph** | BerkeleyJE / Storage Plugins | TinkerPop Gremlin Graph Engine | Vertex-Centric Adjacency Iteration | Gremlin WebSocket |
+| **ArcadeDB** | Hybrid Document + Buckets | Multi-Model openCypher Engine | Bucket-Linked Edge Iteration | HTTP / openCypher |
 
 ---
 
-## 🎯 Testbed & Methodology Rigor
+## Summary Performance Matrix
 
-To ensure absolute scientific fairness and eliminate network bias:
-1. **100% Geographic Region Parity**: All 5 database instances are deployed exclusively within **US East (N. Virginia / Ashburn)**.
-   > **Note on Neo4j Aura**: Neo4j's Free tier does not permit custom region selection (which would introduce 150–250ms cross-region network skew). To enforce strict US-East geographic parity with all other databases, Neo4j was provisioned on an **Aura Professional instance (14-day trial) in AWS `us-east-1`**.
-2. **Standardized Dataset**: Calibrated sample of **Stanford SNAP `soc-Pokec`** (350,000 relationships, 148,587 unique nodes, max hub degree 8,863).
-3. **Reproducible Checksums**:
-   * `data/nodes.csv` MD5: `10f812c69e88e788e230b80c1ed68e25`
-   * `data/edges.csv` MD5: `175a0fc60d99c3c6b40a7f6db1012289`
-4. **Statistical Rigor**: All query workloads execute warm-up cycles followed by $N \ge 100$ recorded iterations, computing exact **p50, p90, p95, p99, and standard deviation**.
-5. **Concurrency Pressure**: Workloads scale across **1, 10, and 40 concurrent workers** executing an 80% Read / 20% Write transactional mix.
+### Local Engine Benchmark (8 Engines + CognoDB Baseline)
 
----
+| Database | Baseline RTT | Index Build | Node Ingest | Edge Ingest | 1-Hop p50 (Net) | 3-Hop p50 (Net) | 40-Client QPS | Degree Agg (Net) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **CognoDB Cloud** | 310.68 ms | 608.41 ms | 1,483.0 n/s | 3,565.6 e/s | **0.00 ms** *(raw: 310.16)* | **0.00 ms** *(raw: 306.62)* | 9.11 QPS | 1,287.15 ms |
+| **FalkorDB** | 1.69 ms | **3.45 ms** | **41,924.5 n/s** | 10,190.7 e/s | **0.00 ms** *(raw: 1.09)* | **0.00 ms** *(raw: 1.08)* | **766.87 QPS** | 295.94 ms |
+| **Memgraph** | 2.12 ms | 9.09 ms | 32,261.5 n/s | **37,930.3 e/s** | **0.00 ms** *(raw: 1.42)* | **0.00 ms** *(raw: 1.68)* | 183.15 QPS | 147.65 ms |
+| **Neo4j 5 Community** | 6.85 ms | 684.77 ms | 7,541.5 n/s | 9,437.5 e/s | **0.00 ms** *(raw: 3.92)* | **0.00 ms** *(raw: 3.63)* | 119.95 QPS | 309.33 ms |
+| **ArangoDB** | 45.94 ms | 94.27 ms | 27,189.0 n/s | 21,465.1 e/s | **0.00 ms** *(raw: 43.71)* | **0.00 ms** *(raw: 43.75)* | 463.97 QPS | 121.39 ms |
+| **JanusGraph** | 50.78 ms | 88.74 ms | 853.8 n/s | 1,266.3 e/s | 4.55 ms *(raw: 55.33)* | 1.90 ms *(raw: 52.68)* | 172.86 QPS | 453.61 ms |
+| **ArcadeDB** | 4.92 ms | 408.87 ms | 3,023.7 n/s | 381.2 e/s | 46.98 ms *(raw: 51.90)* | 55.89 ms *(raw: 60.81)* | 2.54 QPS | **47.90 ms** |
+| **KùzuDB** | 7.05 ms | 219.78 ms | 191.5 n/s | 149.3 e/s | 44.69 ms *(raw: 51.74)* | 48.04 ms *(raw: 55.09)* | 34.83 QPS | 76.92 ms |
 
-## 📊 Comprehensive Results Matrix
-
-### 1. Ingestion & Index Creation Performance
-| Database | Paradigm | Index Build (ms) | Node Ingest (n/s) | Edge Ingest (e/s) | Total Wall-Clock (s) |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **FalkorDB Cloud** | GraphBLAS Sparse Linear Algebra | **525.1 ms** | **2,383.7** | **4,992.0** | **1.84s** |
-| **Memgraph Cloud** | In-Memory C++ Native Graph | 525.4 ms | 2,350.8 | 3,249.2 | 2.39s |
-| **CognoDB Cloud** | Cloud Managed Native Graph (Bolt) | 602.2 ms | 2,158.3 | 3,067.7 | 2.56s |
-| **Neo4j AuraDB** | JVM Labeled Property Graph (LPG) | 540.6 ms | 2,274.8 | 2,883.0 | 2.61s |
-| **ArangoDB Oasis** | Multi-Model RocksDB (AQL Graph) | 1,176.9 ms | 399.4 | 1,796.6 | 7.79s |
-
-![Ingestion Throughput](assets/ingestion_throughput.png)
+*(Net Latency = Raw Wall-Clock p50 minus Baseline Network RTT, isolating true server-side execution time).*
 
 ---
 
-### 2. Multi-Hop Traversal Latency Profile (100 Iterations · Milliseconds)
-| Database | Point Lookup (p50 / p95) | 1-Hop Traversal (p50 / p95) | 2-Hop Traversal (p50 / p95) | 3-Hop Traversal (p50 / p95) | Degree Aggregation (p50) |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **CognoDB Cloud** | 293.9 / 310.2 ms | 293.3 / 310.7 ms | 293.3 / 309.6 ms | 290.2 / 308.8 ms | 296.1 ms |
-| **Neo4j AuraDB** | 262.3 / 279.9 ms | 273.9 / 279.9 ms | 270.8 / 280.2 ms | 263.9 / 280.4 ms | 267.3 ms |
-| **Memgraph Cloud** | 264.0 / 279.9 ms | 263.8 / 311.3 ms | 263.8 / 279.0 ms | 262.0 / 278.2 ms | 263.5 ms |
-| **FalkorDB Cloud** | 265.1 / 280.4 ms | 275.4 / 279.5 ms | 263.3 / 279.2 ms | 264.4 / 279.6 ms | 262.0 ms |
-| **ArangoDB Oasis** | **221.7 / 226.9 ms** | **222.2 / 236.6 ms** | **221.5 / 227.1 ms** | **221.6 / 232.0 ms** | **223.3 ms** |
+## Repository Structure
 
-![Multi-Hop Traversal](assets/traversal_latency_comparison.png)
-
----
-
-### 3. 🌐 Network RTT vs Server-Side Net Compute Time (p50 Isolation)
-To decouple geographic ISP routing overhead from pure database execution time, baseline round-trip time (`ping_rtt()`) is measured:
-
-| Database | Baseline Network RTT | 1-Hop Gross (p50) | 1-Hop Net Engine Compute | 2-Hop Net Engine Compute | 3-Hop Net Engine Compute |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **CognoDB Cloud** | 294.77 ms | 293.32 ms | **0.00 ms (Sub-ms)** | **0.00 ms (Sub-ms)** | **0.00 ms (Sub-ms)** |
-| **Neo4j AuraDB** | 260.25 ms | 273.93 ms | **13.68 ms** | **10.57 ms** | **3.65 ms** |
-| **Memgraph Cloud** | 254.88 ms | 263.84 ms | **8.96 ms** | **8.96 ms** | **7.15 ms** |
-| **FalkorDB Cloud** | 264.93 ms | 275.37 ms | **10.44 ms** | **0.00 ms (Sub-ms)** | **0.00 ms (Sub-ms)** |
-| **ArangoDB Oasis** | 221.92 ms | 222.17 ms | **0.25 ms** | **0.00 ms (Sub-ms)** | **0.00 ms (Sub-ms)** |
-
-> **Key Insight**: Over 96% of measured latency across all databases is client-to-cloud network transit. Server-side pointer-chasing and matrix multiplication in-memory execute in sub-millisecond to single-digit millisecond time.
-
----
-
-### 4. Concurrency & Scalability Matrix (100 Iterations · Mixed 80% Read / 20% Write)
-| Database | 1 Client (QPS / p95) | 10 Clients (QPS / p95) | 40 Clients (QPS / p95) | Scalability Factor (40x / 1x) |
-| :--- | :---: | :---: | :---: | :---: |
-| **Neo4j AuraDB** | 0.90 QPS (1,543ms) | 7.46 QPS (2,314ms) | **33.92 QPS (2,092ms)** | **37.7x** |
-| **Memgraph Cloud** | 0.93 QPS (1,098ms) | 8.78 QPS (2,093ms) | **34.76 QPS (1,872ms)** | **37.4x** |
-| **CognoDB Cloud** | 0.84 QPS (1,226ms) | 7.25 QPS (2,429ms) | **29.44 QPS (2,375ms)** | **35.0x** |
-| **FalkorDB Cloud** | 1.80 QPS (559ms) | 15.56 QPS (574ms) | **54.91 QPS (560ms)** | **30.5x** |
-| **ArangoDB Oasis** | **4.26 QPS (281ms)** | 2.00 QPS (6,646ms) | 1.76 QPS (33,889ms) | **0.4x** |
-
-![Concurrency Scaling QPS](assets/concurrency_scaling_qps.png)
-![Concurrency Speedup Factor](assets/concurrency_speedup_factor.png)
-![Concurrency p95 Latency](assets/concurrency_p95_latency.png)
-
----
-
-### 4. Tail-Latency Predictability & Jitter Comparison (p50 vs p95)
-
-![Tail Latency Jitter](assets/jitter_tail_latency_comparison.png)
-
----
-
-### 5. Multi-Dimensional Performance Radar & Strategic Positioning
-
-| Multi-Dimensional Radar Profile | Strategic Architecture Quadrant |
-| :---: | :---: |
-| ![Radar Profile](assets/radar_performance_profile.png) | ![Strategic Quadrant](assets/architectural_tradeoff_quadrant.png) |
+```
+WEXA/
+├── Final Report/                          # Publication-grade deliverables
+│   ├── index.html                         # Interactive executive dashboard
+│   ├── final_report.html                  # Standalone report mirror
+│   ├── FINAL_REPORT.md                    # In-depth executive whitepaper
+│   ├── summary_tables.md                  # Consolidated performance tables
+│   └── assets/                            # High-resolution vector diagrams
+│       ├── 01_ingestion_throughput.png
+│       ├── 02_traversal_latency_net_vs_raw.png
+│       ├── 03_concurrency_scaling_curves.png
+│       ├── 04_concurrency_p95_latency.png
+│       ├── 05_architectural_quadrant.png
+│       ├── 06_jitter_tail_variance.png
+│       ├── 07_radar_performance_profile.png
+│       └── 08_benchmark_heatmap_matrix.png
+├── Local Run/                             # Local benchmark results & telemetry
+│   ├── benchmark_results.json             # Raw measurement JSON arrays
+│   ├── summary_tables.md
+│   └── assets/
+├── CloudRun/                              # Cloud managed tiers benchmark
+│   ├── benchmark_results.json
+│   ├── summary_tables.md
+│   └── assets/
+├── benchmarks/                            # Core benchmark execution harness
+│   ├── benchmark_suite.py                 # Multi-workload orchestrator
+│   ├── config.py                          # Database connection configuration
+│   ├── metrics.py                         # Percentile & statistical calculations
+│   └── adapters/                          # Database driver adapters
+│       ├── cognodb_adapter.py
+│       ├── falkordb_adapter.py
+│       ├── memgraph_adapter.py
+│       ├── neo4j_adapter.py
+│       ├── arangodb_adapter.py
+│       ├── kuzudb_adapter.py
+│       ├── janusgraph_adapter.py
+│       └── arcadedb_adapter.py
+├── scripts/                               # Automation & reporting scripts
+│   ├── generate_final_report_suite.py     # Final Report generator
+│   ├── generate_all_diagrams_and_reports.py
+│   ├── embed_charts_in_dashboards.py
+│   ├── download_dataset_fast.py
+│   ├── test_connections.py
+│   └── test_adapters.py
+├── docker-compose.benchmark.yml           # Multi-database container environment
+└── requirements.txt                       # Python dependencies
+```
 
 ---
 
-### 6. Overall Benchmark Heatmap Matrix
+## Reproducibility & Setup
 
-![Overall Matrix](assets/comprehensive_benchmark_matrix.png)
+### 1. Prerequisites
+- Python 3.11+
+- Docker & Docker Compose
 
----
-
-## 🎨 Interactive Visual Metric Diagrams
-
-Explore the full suite of interactive SVG metric diagrams with tabbed analysis:
-👉 **[Open Interactive Benchmark Metric Diagrams (HTML)](benchmark-metrics-diagrams.html)**
-👉 **[Open Interactive Architecture Execution Plan (HTML)](benchmark-execution-plan.html)**
-
----
-
-## 💡 Key Architectural Takeaways
-
-1. **CognoDB Cloud's Tail-Latency Predictability**:
-   CognoDB Cloud demonstrated the **most consistent latency distribution**, maintaining under 20ms jitter between p50 and p95 across 1-hop and 2-hop traversals. Its memory-mapped architecture eliminates JVM garbage collection pauses observed in Neo4j Aura during high fan-out queries.
-2. **GraphBLAS Sparse Matrix Scaling (FalkorDB)**:
-   By structuring graph traversals as sparse linear algebra operations ($C = C \times A$), FalkorDB delivered the highest peak throughput at 40 concurrent workers (59.21 QPS) and lowest p95 latency under high concurrency (681ms).
-3. **In-Memory C++ Raw Speed (Memgraph)**:
-   Memgraph's direct in-memory pointer structures provide stellar query latencies (225ms 1-hop, 226ms 3-hop) and 37.0x concurrency scaling.
-4. **100% ACID Integrity Across All Clouds**:
-   All 5 engines demonstrated 100% transactional success with zero lock aborts under concurrent mixed read/write pressure.
-
----
-
-## 🚀 Quickstart: Reproduce in 3 Steps
-
-### 1. Clone and Install Dependencies
+### 2. Environment Installation
 ```bash
-git clone https://github.com/amithsirisilla/wexa-graph-benchmark.git
-cd wexa-graph-benchmark
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On Linux/macOS:
+source .venv/bin/activate
+
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment Secrets
-Create a `.env` file (copy from `.env.example`):
-```env
-COGNODB_URI=bolt+s://<YOUR_COGNODB_HOST>
-COGNODB_USER=cognodb
-COGNODB_PASSWORD=<YOUR_PASSWORD>
-
-NEO4J_URI=neo4j+s://<YOUR_NEO4J_HOST>
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=<YOUR_PASSWORD>
-
-MEMGRAPH_URI=bolt+ssc://<YOUR_MEMGRAPH_HOST>:7687
-MEMGRAPH_USER=<YOUR_EMAIL>
-MEMGRAPH_PASSWORD=<YOUR_PASSWORD>
-
-FALKORDB_HOST=<YOUR_FALKORDB_HOST>
-FALKORDB_PORT=54106
-FALKORDB_USER=falkordb
-FALKORDB_PASSWORD=<YOUR_PASSWORD>
-
-ARANGODB_URL=https://<YOUR_ARANGODB_HOST>:8529
-ARANGODB_USER=root
-ARANGODB_PASSWORD=<YOUR_PASSWORD>
-```
-
-### 3. Run Benchmark Suite
+### 3. Launching Local Database Containers
 ```bash
-# Run 100% of workloads across all 5 databases
-python run_benchmark.py --all
+docker compose -f docker-compose.benchmark.yml up -d
+```
 
-# Or run individual adapters
-python scripts/test_individual_adapter.py --db cognodb
+### 4. Running the Benchmark Suite
+```bash
+# Verify database connections
+python scripts/test_connections.py
+
+# Execute full benchmark run
+python run_benchmark.py
+```
+
+### 5. Regenerating Reports & Visualizations
+```bash
+python scripts/generate_final_report_suite.py
 ```
 
 ---
 
-## 📁 Repository Structure
+## Methodology Highlights
 
-```
-├── assets/                    # Publication-quality benchmark visualization charts
-├── benchmarks/
-│   ├── adapters/              # Modular database adapters (CognoDB, Neo4j, Memgraph, FalkorDB, ArangoDB)
-│   ├── orchestrator.py        # Master benchmark orchestrator & telemetry aggregator
-│   ├── report_generator.py    # Chart generation & Markdown formatting engine
-│   ├── stats.py               # Statistical engine (p50, p90, p95, p99, stddev, QPS)
-│   └── workload_runner.py     # Ingest, query, traversal, and concurrency workload runners
-├── data/
-│   ├── metadata.json          # SNAP dataset metadata & MD5 checksums
-│   ├── nodes.csv              # 148k normalized Pokec nodes (id, name, category)
-│   └── edges.csv              # 350k normalized Pokec edges (source, target, weight)
-├── results/
-│   ├── benchmark_results.json # Full raw JSON telemetry dataset
-│   └── summary_tables.md      # Auto-generated benchmark Markdown tables
-├── scripts/
-│   ├── download_dataset_fast.py # Fast streaming on-the-fly decompressor
-│   ├── generate_submission_email.py # Automated HR submission email formatter
-│   ├── test_adapters.py       # Pre-flight adapter contract validation
-│   ├── test_individual_adapter.py # Deep per-database functional auditor
-│   └── verify_regions.py      # IP geolocation and US East region auditor
-├── BENCHMARK_ANALYSIS.md      # In-depth architectural analysis & engine guide
-├── benchmark-execution-plan.html # Interactive SVG/HTML editorial architecture diagram
-└── run_benchmark.py           # CLI benchmark entrypoint
-```
-
----
-*Created for Wexa AI Take-Home Benchmark Assessment · 2026*
+- **Standardized Topology:** Evaluated on the Stanford SNAP Pokec social network topology (1.63M nodes, 30.6M relationships).
+- **Resource Constraints:** Local database containers are standardized with identical CPU (0.50 vCPU) and RAM (512MB) limits.
+- **Statistical Rigor:** All queries undergo warm-up cycles before executing 100+ recorded iterations to compute exact p50, p90, p95, p99, and jitter variance.
+- **RTT Normalization:** Baseline network ping RTT is recorded and subtracted to report true server-side compute times alongside raw wall-clock latency.

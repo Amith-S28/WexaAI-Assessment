@@ -69,39 +69,105 @@ def build_self_contained_dashboards():
     # We'll compute best values in JS instead for flexibility
 
     # ── Local Run table rows ──
+    # ── RTT-normalized latency computation ──
+    # For fair comparison, subtract baseline network RTT from raw p50 latencies.
+    # This isolates actual server-side compute time.
+    # Raw values shown in parentheses for transparency.
+    #
+    # Format: (color, name, paradigm, idx_build, node_ing, edge_ing,
+    #          hop1_net, hop3_net, qps, deg_net,
+    #          hop1_raw, hop3_raw, deg_raw, rtt)
+
     local_rows = [
-        ("var(--color-cogno)", "CognoDB Cloud", "Cloud Native Graph (Bolt)", "608.41 ms", "1,483.0 n/s", "3,565.6 e/s", "310.16 ms", "306.62 ms", "9.11 QPS", "1,597.83 ms"),
-        ("var(--color-falkor)", "FalkorDB", "GraphBLAS Sparse Matrix (C)", "3.45 ms", "41,924.5 n/s", "10,190.7 e/s", "1.09 ms", "1.08 ms", "766.87 QPS", "297.63 ms"),
-        ("var(--color-memgraph)", "Memgraph", "In-Memory Native Graph (C++)", "9.09 ms", "32,261.5 n/s", "37,930.3 e/s", "1.42 ms", "1.68 ms", "183.15 QPS", "149.77 ms"),
-        ("var(--color-neo4j)", "Neo4j 5 Community", "JVM Property Graph (LPG)", "684.77 ms", "7,541.5 n/s", "9,437.5 e/s", "3.92 ms", "3.63 ms", "119.95 QPS", "316.18 ms"),
-        ("var(--color-arango)", "ArangoDB", "Multi-Model RocksDB (AQL)", "94.27 ms", "27,189.0 n/s", "21,465.1 e/s", "43.71 ms", "43.75 ms", "463.97 QPS", "167.33 ms"),
-        ("var(--color-janus)", "JanusGraph", "TinkerPop Gremlin (BerkeleyJE)", "88.74 ms", "853.8 n/s", "1,266.3 e/s", "55.33 ms", "52.68 ms", "172.86 QPS", "504.39 ms"),
-        ("var(--color-arcade)", "ArcadeDB", "Document + Graph (openCypher)", "408.87 ms", "3,023.7 n/s", "381.2 e/s", "51.90 ms", "60.81 ms", "2.54 QPS", "52.82 ms"),
-        ("var(--color-kuzu)", "KùzuDB", "Columnar In-Process Engine", "219.78 ms", "191.5 n/s", "149.3 e/s", "51.74 ms", "55.09 ms", "34.83 QPS", "83.97 ms"),
+        # CognoDB Cloud: RTT=310.68ms
+        # 1-hop raw=310.16 -> net=max(0, 310.16-310.68)=0.00
+        # 3-hop raw=306.62 -> net=max(0, 306.62-310.68)=0.00
+        # agg raw=1597.83 -> net=max(0, 1597.83-310.68)=1287.15
+        ("var(--color-cogno)", "CognoDB Cloud", "Cloud Native Graph (Bolt)",
+         "608.41 ms", "1,483.0 n/s", "3,565.6 e/s",
+         "0.00 ms", "0.00 ms", "9.11 QPS", "1,287.15 ms",
+         "310.16", "306.62", "1,597.83", "310.68"),
+        # FalkorDB: RTT=1.69ms
+        ("var(--color-falkor)", "FalkorDB", "GraphBLAS Sparse Matrix (C)",
+         "3.45 ms", "41,924.5 n/s", "10,190.7 e/s",
+         "0.00 ms", "0.00 ms", "766.87 QPS", "295.94 ms",
+         "1.09", "1.08", "297.63", "1.69"),
+        # Memgraph: RTT=2.12ms
+        ("var(--color-memgraph)", "Memgraph", "In-Memory Native Graph (C++)",
+         "9.09 ms", "32,261.5 n/s", "37,930.3 e/s",
+         "0.00 ms", "0.00 ms", "183.15 QPS", "147.65 ms",
+         "1.42", "1.68", "149.77", "2.12"),
+        # Neo4j: RTT=6.85ms
+        ("var(--color-neo4j)", "Neo4j 5 Community", "JVM Property Graph (LPG)",
+         "684.77 ms", "7,541.5 n/s", "9,437.5 e/s",
+         "0.00 ms", "0.00 ms", "119.95 QPS", "309.33 ms",
+         "3.92", "3.63", "316.18", "6.85"),
+        # ArangoDB: RTT=45.94ms
+        ("var(--color-arango)", "ArangoDB", "Multi-Model RocksDB (AQL)",
+         "94.27 ms", "27,189.0 n/s", "21,465.1 e/s",
+         "0.00 ms", "0.00 ms", "463.97 QPS", "121.39 ms",
+         "43.71", "43.75", "167.33", "45.94"),
+        # JanusGraph: RTT=50.78ms
+        ("var(--color-janus)", "JanusGraph", "TinkerPop Gremlin (BerkeleyJE)",
+         "88.74 ms", "853.8 n/s", "1,266.3 e/s",
+         "4.55 ms", "1.90 ms", "172.86 QPS", "453.61 ms",
+         "55.33", "52.68", "504.39", "50.78"),
+        # ArcadeDB: RTT=4.92ms
+        ("var(--color-arcade)", "ArcadeDB", "Document + Graph (openCypher)",
+         "408.87 ms", "3,023.7 n/s", "381.2 e/s",
+         "46.98 ms", "55.89 ms", "2.54 QPS", "47.90 ms",
+         "51.90", "60.81", "52.82", "4.92"),
+        # KuzuDB: RTT=7.05ms
+        ("var(--color-kuzu)", "KùzuDB", "Columnar In-Process Engine",
+         "219.78 ms", "191.5 n/s", "149.3 e/s",
+         "44.69 ms", "48.04 ms", "34.83 QPS", "76.92 ms",
+         "51.74", "55.09", "83.97", "7.05"),
     ]
 
     cloud_rows = [
-        ("var(--color-cogno)", "CognoDB Cloud", "Cloud Native Graph (Bolt)", "608.41 ms", "1,483.0 n/s", "3,565.6 e/s", "310.16 ms", "306.62 ms", "9.11 QPS", "1,597.83 ms"),
-        ("var(--color-neo4j)", "Neo4j AuraDB", "JVM Property Graph (LPG)", "573.84 ms", "3,109.8 n/s", "2,826.2 e/s", "262.99 ms", "273.53 ms", "27.84 QPS", "339.39 ms"),
-        ("var(--color-memgraph)", "Memgraph Cloud", "In-Memory Native Graph (C++)", "515.97 ms", "3,279.2 n/s", "1,694.1 e/s", "260.03 ms", "262.10 ms", "35.37 QPS", "359.07 ms"),
-        ("var(--color-falkor)", "FalkorDB Cloud", "GraphBLAS Sparse Matrix (C)", "470.96 ms", "1,282.6 n/s", "3,940.4 e/s", "261.28 ms", "274.67 ms", "59.00 QPS", "557.93 ms"),
-        ("var(--color-arango)", "ArangoDB Oasis", "Multi-Model RocksDB (AQL)", "543.92 ms", "2,001.2 n/s", "3,000.9 e/s", "265.35 ms", "225.63 ms", "68.68 QPS", "510.46 ms"),
+        # CognoDB Cloud: RTT=310.68ms
+        ("var(--color-cogno)", "CognoDB Cloud", "Cloud Native Graph (Bolt)",
+         "608.41 ms", "1,483.0 n/s", "3,565.6 e/s",
+         "0.00 ms", "0.00 ms", "9.11 QPS", "1,287.15 ms",
+         "310.16", "306.62", "1,597.83", "310.68"),
+        # Neo4j AuraDB: RTT=246.74ms
+        ("var(--color-neo4j)", "Neo4j AuraDB", "JVM Property Graph (LPG)",
+         "573.84 ms", "3,109.8 n/s", "2,826.2 e/s",
+         "16.25 ms", "26.79 ms", "27.84 QPS", "92.65 ms",
+         "262.99", "273.53", "339.39", "246.74"),
+        # Memgraph Cloud: RTT=252.21ms
+        ("var(--color-memgraph)", "Memgraph Cloud", "In-Memory Native Graph (C++)",
+         "515.97 ms", "3,279.2 n/s", "1,694.1 e/s",
+         "7.82 ms", "9.89 ms", "35.37 QPS", "106.86 ms",
+         "260.03", "262.10", "359.07", "252.21"),
+        # FalkorDB Cloud: RTT=264.67ms
+        ("var(--color-falkor)", "FalkorDB Cloud", "GraphBLAS Sparse Matrix (C)",
+         "470.96 ms", "1,282.6 n/s", "3,940.4 e/s",
+         "0.00 ms", "10.00 ms", "59.00 QPS", "293.26 ms",
+         "261.28", "274.67", "557.93", "264.67"),
+        # ArangoDB Oasis: RTT=258.67ms
+        ("var(--color-arango)", "ArangoDB Oasis", "Multi-Model RocksDB (AQL)",
+         "543.92 ms", "2,001.2 n/s", "3,000.9 e/s",
+         "6.68 ms", "0.00 ms", "68.68 QPS", "251.79 ms",
+         "265.35", "225.63", "510.46", "258.67"),
     ]
+
 
     def build_table_html(rows, table_id):
         html_rows = ""
-        for color, name, paradigm, idx_build, node_ing, edge_ing, hop1, hop3, qps, deg in rows:
+        for color, name, paradigm, idx_build, node_ing, edge_ing, hop1_net, hop3_net, qps, deg_net, hop1_raw, hop3_raw, deg_raw, rtt in rows:
             html_rows += f"""
             <tr>
               <td><span class="db-badge"><span class="badge-dot" style="background: {color}"></span>{name}</span></td>
               <td>{paradigm}</td>
+              <td class="rtt-cell">{rtt} ms</td>
               <td data-val="{idx_build}">{idx_build}</td>
               <td data-val="{node_ing}">{node_ing}</td>
               <td data-val="{edge_ing}">{edge_ing}</td>
-              <td data-val="{hop1}">{hop1}</td>
-              <td data-val="{hop3}">{hop3}</td>
+              <td data-val="{hop1_net}" title="Raw: {hop1_raw} ms">{hop1_net} <span class="raw-hint">(raw: {hop1_raw})</span></td>
+              <td data-val="{hop3_net}" title="Raw: {hop3_raw} ms">{hop3_net} <span class="raw-hint">(raw: {hop3_raw})</span></td>
               <td data-val="{qps}">{qps}</td>
-              <td data-val="{deg}">{deg}</td>
+              <td data-val="{deg_net}" title="Raw: {deg_raw} ms">{deg_net} <span class="raw-hint">(raw: {deg_raw})</span></td>
             </tr>"""
 
         return f"""
@@ -111,13 +177,14 @@ def build_self_contained_dashboards():
             <tr>
               <th>Database</th>
               <th>Paradigm</th>
+              <th>Baseline RTT</th>
               <th data-best="low">Index Build</th>
               <th data-best="high">Node Ingest</th>
               <th data-best="high">Edge Ingest</th>
-              <th data-best="low">1-Hop p50</th>
-              <th data-best="low">3-Hop p50</th>
+              <th data-best="low">1-Hop p50 (Net)</th>
+              <th data-best="low">3-Hop p50 (Net)</th>
               <th data-best="high">40-Client QPS</th>
-              <th data-best="low">Degree Agg p50</th>
+              <th data-best="low">Degree Agg (Net)</th>
             </tr>
           </thead>
           <tbody>{html_rows}
@@ -424,9 +491,22 @@ def build_self_contained_dashboards():
       position: relative;
     }}
     td.best-val::before {{
-      content: '★';
+      content: '\u2605';
       position: absolute; top: 4px; right: 6px;
       font-size: 0.65rem; color: #10b981;
+    }}
+
+    /* ── Raw-value hint (parenthetical) ── */
+    .raw-hint {{
+      font-size: 0.75rem; color: var(--soft);
+      font-family: 'Geist Mono', monospace;
+    }}
+
+    /* ── RTT column ── */
+    .rtt-cell {{
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.82rem; color: var(--muted);
+      background: rgba(99, 102, 241, 0.04);
     }}
 
     .hidden {{ display: none !important; }}
@@ -510,6 +590,8 @@ def build_self_contained_dashboards():
       <h2 class="section-title">Detailed Workload Metric Summary Tables</h2>
       <div class="legend-strip">
         <span class="legend-item"><span style="color:#10b981; font-weight:700;">★</span> Best value per column (lowest latency / highest throughput)</span>
+        <span class="legend-item">| <strong>(Net)</strong> = Raw p50 minus Baseline RTT (server-side compute only)</span>
+        <span class="legend-item">| <span class="raw-hint">(raw: X)</span> = measured wall-clock latency incl. network</span>
       </div>
       {local_table}
     </div>
@@ -553,6 +635,8 @@ def build_self_contained_dashboards():
       <h2 class="section-title">Cloud Workload Metric Summary Tables</h2>
       <div class="legend-strip">
         <span class="legend-item"><span style="color:#10b981; font-weight:700;">★</span> Best value per column (lowest latency / highest throughput)</span>
+        <span class="legend-item">| <strong>(Net)</strong> = Raw p50 minus Baseline RTT (server-side compute only)</span>
+        <span class="legend-item">| <span class="raw-hint">(raw: X)</span> = measured wall-clock latency incl. network</span>
       </div>
       {cloud_table}
     </div>
